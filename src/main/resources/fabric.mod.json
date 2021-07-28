@@ -17,10 +17,16 @@
   "license": "MIT",
   "icon": "assets/betterdroppeditems/icon.png",
 
-  "environment": "client",
+  "environment": "*",
   "mixins": [
     "betterdroppeditems.mixins.json"
   ],
+
+  "entrypoints": {
+    "main": [
+      "bdi.BdiInit"
+    ]
+  },
 
   "depends": {
     "fabricloader": ">=0.4.0",
