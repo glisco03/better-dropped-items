@@ -1,32 +1,39 @@
 package bdi.mixin;
 
+import bdi.util.Helpers;
 import bdi.util.ItemEntityRotator;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
-public class ItemEntityMixin implements ItemEntityRotator {
+public abstract class ItemEntityMixin implements ItemEntityRotator {
 
-    private Vec3d rotation = new Vec3d(0, 0, 0);
+    @Shadow public abstract ItemStack getStack();
+
+    @Unique
+    private float rotation;
 
     @Override
-    public Vec3d getRotation() {
+    public float getRotation() {
         return rotation;
     }
 
     @Override
-    public void setRotation(Vec3d rotation) {
+    public void setRotation(float rotation) {
         this.rotation = rotation;
     }
 
-    @Override
-    public void addRotation(Vec3d rotation) {
-        this.rotation.add(rotation);
+    @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getCount()I", ordinal = 0, shift = At.Shift.AFTER), cancellable = true)
+    private void controlPickup(PlayerEntity player, CallbackInfo ci){
+        if(Helpers.canPlayerPickUpItem(player, getStack())) return;
+        ci.cancel();
     }
 
-    @Override
-    public void addRotation(double x, double y, double z) {
-        this.rotation.add(x, y, z);
-    }
 }

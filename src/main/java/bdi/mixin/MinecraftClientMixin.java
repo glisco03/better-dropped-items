@@ -1,6 +1,7 @@
 package bdi.mixin;
 
-import bdi.util.RaycastHelper;
+import bdi.BdiInit;
+import bdi.util.Helpers;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
@@ -27,12 +28,16 @@ public class MinecraftClientMixin {
     @Nullable
     public ClientPlayerInteractionManager interactionManager;
 
-    @Shadow @Nullable public ClientPlayerEntity player;
+    @Shadow
+    @Nullable
+    public ClientPlayerEntity player;
 
     @Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isRiding()Z", shift = At.Shift.AFTER), cancellable = true)
     private void tryPickupItem(CallbackInfo ci) {
-        if (RaycastHelper.raycastItem(cameraEntity, interactionManager.getReachDistance()) == null) return;
-        ClientPlayNetworking.send(new Identifier("bdi", "pickup"), PacketByteBufs.empty());
+        if (!BdiInit.getConfig().rightClickPickup) return;
+
+        if (Helpers.raycastItem(cameraEntity, interactionManager.getReachDistance()) == null) return;
+        ClientPlayNetworking.send(new Identifier(BdiInit.MOD_ID, "pickup"), PacketByteBufs.empty());
         this.player.swingHand(Hand.MAIN_HAND);
         ci.cancel();
     }

@@ -25,9 +25,15 @@
   "entrypoints": {
     "main": [
       "bdi.BdiInit"
+    ],
+    "client": [
+      "bdi.BdiClientInit"
+    ],
+    "modmenu": [
+      "bdi.util.BdiModMenu"
     ]
   },
-
+  "accessWidener": "betterdroppeditems.accesswidener",
   "depends": {
     "fabricloader": ">=0.4.0",
     "fabric": "*"

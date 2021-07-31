@@ -11,7 +11,7 @@
   },
   "mixins": [
     "InGameHudMixin",
-    "ItemEntityAccessor",
-    "MinecraftClientMixin"
+    "MinecraftClientMixin",
+    "PlayerInventoryAccessor"
   ]
 }
