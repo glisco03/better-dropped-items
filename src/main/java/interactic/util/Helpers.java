@@ -1,8 +1,8 @@
-package bdi.util;
+package interactic.util;
 
-import bdi.BdiInit;
-import bdi.ItemFilterItem;
-import bdi.mixin.PlayerInventoryAccessor;
+import interactic.InteracticInit;
+import interactic.ItemFilterItem;
+import interactic.mixin.PlayerInventoryAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,10 +25,10 @@ public class Helpers {
     public static boolean canPlayerPickUpItem(PlayerEntity player, ItemStack stack) {
         if (player.isSneaking()) return true;
 
-        if (!BdiInit.getConfig().autoPickup) return false;
-        if (!BdiInit.getConfig().itemFilterEnabled) return true;
+        if (!InteracticInit.getConfig().autoPickup) return false;
+        if (!InteracticInit.getConfig().itemFilterEnabled) return true;
 
-        var filterOptional = ((PlayerInventoryAccessor) player.getInventory()).getCombinedInventory().stream().flatMap(Collection::stream).filter(itemStack -> itemStack.isOf(BdiInit.ITEM_FILTER)).findFirst();
+        var filterOptional = ((PlayerInventoryAccessor) player.getInventory()).getCombinedInventory().stream().flatMap(Collection::stream).filter(itemStack -> itemStack.isOf(InteracticInit.ITEM_FILTER)).findFirst();
         if (filterOptional.isEmpty()) return true;
 
         final var filterStack = filterOptional.get();

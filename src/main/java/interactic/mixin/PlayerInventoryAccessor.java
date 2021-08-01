@@ -1,4 +1,4 @@
-package bdi.mixin;
+package interactic.mixin;
 
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;

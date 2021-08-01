@@ -1,7 +1,7 @@
-package bdi.mixin;
+package interactic.mixin;
 
-import bdi.BdiInit;
-import bdi.util.ItemEntityRotator;
+import interactic.InteracticInit;
+import interactic.util.ItemEntityRotator;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -17,6 +17,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -55,7 +56,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
     @Inject(at = @At("HEAD"), method = "render", cancellable = true)
     private void render(ItemEntity entity, float f, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo callback) {
-        if(!BdiInit.getConfig().fancyItemRendering) return;
+        if(!InteracticInit.getConfig().fancyItemRendering) return;
 
         ItemStack itemStack = entity.getStack();
 
@@ -89,7 +90,12 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
         //Either calculate the current angle based on item age and velocity or get
         //the one it had before it hit the ground
-        float angle = entity.isOnGround() ? rotator.getRotation() : (float) ((entity.getItemAge() + tickDelta) * MathHelper.clamp(entity.getVelocity().length() * 0.75, 0.015, 10));
+        Vec3d last = new Vec3d(entity.lastRenderX, entity.lastRenderY, entity.lastRenderZ);
+        Vec3d diff = entity.getCameraPosVec(tickDelta).subtract(last);
+        diff = diff.normalize();
+
+        float angle = entity.isOnGround() ? rotator.getRotation() : (float) ((random.nextInt(20) - 10 + entity.getItemAge() + tickDelta) * MathHelper.clamp(diff.length() * 0.25, 0.005, 5));
+        if (entity.isSubmergedInWater()) angle *= 0.25;
 
         //Make sure the angle never exceeds two pi
         if (angle >= TWO_PI) angle -= TWO_PI;
@@ -97,15 +103,15 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         //Clusterfuck our way back to either 0 or 180 degrees. There has to be a better way to do this
         if (entity.isOnGround() && !(angle == 0 || angle == (float) Math.PI)) {
             if (angle > Math.PI) {
-                if (angle > THREE_HALF_PI) angle += tickDelta;
+                if (angle > THREE_HALF_PI) angle += tickDelta * 0.5;
                 else {
-                    angle -= tickDelta;
+                    angle -= tickDelta * 0.5;
                 }
             } else {
                 if (angle > HALF_PI) {
-                    angle += tickDelta;
+                    angle += tickDelta * 0.5;
                     if (angle > Math.PI) angle = (float) Math.PI;
-                } else angle -= tickDelta;
+                } else angle -= tickDelta * 0.5;
             }
 
             if (angle < 0) angle = 0;
@@ -117,6 +123,8 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
         //Spin the item and store the value inside it should it hit the ground next tick
         matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion((float) (angle + HALF_PI)));
+        matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(angle));
+        matrices.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion(angle));
         rotator.setRotation(angle);
 
         //Restore the origin position

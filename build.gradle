@@ -9,9 +9,6 @@ targetCompatibility = 16
 archivesBaseName = "${modid}"
 version = "${version}" + "-" + project.minecraft_version
 
-minecraft {
-}
-
 repositories {
 	maven {
 		name = "TerraformersMC"
@@ -20,10 +17,6 @@ repositories {
 
 	maven { url = "https://maven.fabricmc.net/" }
 	maven { url "https://maven.shedaniel.me/" }
-}
-
-minecraft {
-	accessWidener = file("src/main/resources/betterdroppeditems.accesswidener")
 }
 
 dependencies {

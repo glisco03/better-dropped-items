@@ -1,11 +1,14 @@
 
 {
   "schemaVersion": 1,
-  "id": "betterdroppeditems",
+  "id": "interactic",
   "version": "${version}",
-  "name": "Better Dropped Items",
-  "description": "Improves the visuals of dropped items!",
+  "name": "Interactic",
+  "description": "Refined item interactions",
   "authors": [
+    "glisco"
+  ],
+  "contributors": [
     "Draylar"
   ],
   "contact": {
@@ -15,30 +18,26 @@
   },
 
   "license": "MIT",
-  "icon": "assets/betterdroppeditems/icon.png",
+  "icon": "assets/interactic/icon.png",
 
   "environment": "*",
   "mixins": [
-    "betterdroppeditems.mixins.json"
+    "interactic.mixins.json"
   ],
 
   "entrypoints": {
     "main": [
-      "bdi.BdiInit"
+      "interactic.InteracticInit"
     ],
     "client": [
-      "bdi.BdiClientInit"
+      "interactic.InteracticClientInit"
     ],
     "modmenu": [
-      "bdi.util.BdiModMenu"
+      "interactic.util.InteracticModMenu"
     ]
   },
-  "accessWidener": "betterdroppeditems.accesswidener",
   "depends": {
     "fabricloader": ">=0.4.0",
     "fabric": "*"
-  },
-  "suggests": {
-    "flamingo": "*"
   }
 }

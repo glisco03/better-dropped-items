@@ -1,4 +1,4 @@
-package bdi;
+package interactic;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 
 public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
 
-    private static final Identifier TEXTURE = new Identifier(BdiInit.MOD_ID, "textures/gui/item_filter.png");
+    private static final Identifier TEXTURE = new Identifier(InteracticInit.MOD_ID, "textures/gui/item_filter.png");
 
     @Override
     protected void init() {

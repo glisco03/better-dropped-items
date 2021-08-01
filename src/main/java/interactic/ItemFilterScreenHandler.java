@@ -1,4 +1,4 @@
-package bdi;
+package interactic;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -18,7 +18,7 @@ public class ItemFilterScreenHandler extends ScreenHandler {
     }
 
     public ItemFilterScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
-        super(BdiInit.ITEM_FILTER_SCREEN_HANDLER, syncId);
+        super(InteracticInit.ITEM_FILTER_SCREEN_HANDLER, syncId);
         this.inventory = inventory;
         checkSize(inventory, SLOT_COUNT);
         inventory.onOpen(playerInventory.player);

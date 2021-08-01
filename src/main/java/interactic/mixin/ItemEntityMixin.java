@@ -1,7 +1,7 @@
-package bdi.mixin;
+package interactic.mixin;
 
-import bdi.util.Helpers;
-import bdi.util.ItemEntityRotator;
+import interactic.util.Helpers;
+import interactic.util.ItemEntityRotator;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;

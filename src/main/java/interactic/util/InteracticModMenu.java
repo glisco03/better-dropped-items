@@ -1,13 +1,13 @@
-package bdi.util;
+package interactic.util;
 
-import bdi.BdiInit;
+import interactic.InteracticInit;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import me.shedaniel.autoconfig.AutoConfig;
 
-public class BdiModMenu implements ModMenuApi {
+public class InteracticModMenu implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return parent -> AutoConfig.getConfigScreen(BdiInit.BdiConfig.class, parent).get();
+        return parent -> AutoConfig.getConfigScreen(InteracticInit.InteracticConfig.class, parent).get();
     }
 }
