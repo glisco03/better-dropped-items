@@ -17,7 +17,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -56,7 +55,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
     @Inject(at = @At("HEAD"), method = "render", cancellable = true)
     private void render(ItemEntity entity, float f, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo callback) {
-        if(!InteracticInit.getConfig().fancyItemRendering) return;
+        if (!InteracticInit.getConfig().fancyItemRendering) return;
 
         ItemStack itemStack = entity.getStack();
 
@@ -82,20 +81,16 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
 
         float groundDistance = itemIsActualBlock ? 0 : (float) (0.125 - 0.0625 * scaleZ);
-        if(!itemIsActualBlock) groundDistance -= (renderCount - 1) * 0.05 * scaleZ;
+        if (!itemIsActualBlock) groundDistance -= (renderCount - 1) * 0.05 * scaleZ;
         matrices.translate(0, -groundDistance, 0);
 
         //Translate randomly to avoid Z-Fighting
         matrices.translate(0, (random.nextDouble() - 0.5) * 0.005, 0);
 
-        //Either calculate the current angle based on item age and velocity or get
-        //the one it had before it hit the ground
-        Vec3d last = new Vec3d(entity.lastRenderX, entity.lastRenderY, entity.lastRenderZ);
-        Vec3d diff = entity.getCameraPosVec(tickDelta).subtract(last);
-        diff = diff.normalize();
-
-        float angle = entity.isOnGround() ? rotator.getRotation() : (float) ((random.nextInt(20) - 10 + entity.getItemAge() + tickDelta) * MathHelper.clamp(diff.length() * 0.25, 0.005, 5));
-        if (entity.isSubmergedInWater()) angle *= 0.25;
+        //Calculate rotation based on velocity or get the one the item had
+        //before it hit the ground
+        if (rotator.getRotation() == -1) rotator.setRotation((random.nextInt(20) - 10) * 0.15f);
+        float angle = entity.isOnGround() ? rotator.getRotation() : (float) (rotator.getRotation() + ((MathHelper.clamp(entity.getVelocity().length() * 0.1, 0.04, 0.2))) * (entity.isSubmergedInWater() ? 0.25f : 1));
 
         //Make sure the angle never exceeds two pi
         if (angle >= TWO_PI) angle -= TWO_PI;
@@ -124,7 +119,6 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         //Spin the item and store the value inside it should it hit the ground next tick
         matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion((float) (angle + HALF_PI)));
         matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(angle));
-        matrices.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion(angle));
         rotator.setRotation(angle);
 
         //Restore the origin position
@@ -134,7 +128,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         matrices.translate(0, 0, ((0.09375 - (renderCount * 0.1)) * 0.5) * scaleZ);
 
         // Translate block items down because for some reason they like to float otherwise
-        if(itemIsActualBlock) matrices.translate(0, -0.25 * scaleY, 0);
+        if (itemIsActualBlock) matrices.translate(0, -0.25 * scaleY, 0);
 
         float x;
         float y;

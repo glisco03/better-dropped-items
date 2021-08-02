@@ -33,8 +33,9 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
 
     @Shadow
     private int itemAge;
+
     @Unique
-    private float rotation;
+    private float rotation = -1;
 
     @Unique
     private boolean wasThrown;
@@ -93,7 +94,11 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
         if (entities.size() < 1) return;
 
         final var target = entities.get(0);
-        target.damage(new ItemDamageSource((ItemEntity) (Object) this, ((ServerWorld) world).getEntity(this.getThrower())), (float) damage);
+        final var damageSource = new ItemDamageSource((ItemEntity) (Object) this, ((ServerWorld) world).getEntity(this.getThrower()));
+
+        if (target.hurtTime != 0 || target.isInvulnerableTo(damageSource)) return;
+
+        target.damage(damageSource, (float) damage);
         if (this.getStack().damage(1, world.getRandom(), null)) this.discard();
     }
 }
