@@ -2,10 +2,16 @@
   "item.interactic.item_filter": "Item Filter",
 
   "text.autoconfig.interactic.title": "Interactic Configuration",
+  "text.autoconfig.interactic.category.global": "Global Options",
+  "text.autoconfig.interactic.category.client": "Client-Only Options",
+
+  "text.autoconfig.interactic.option.clientOnlyMode": "Client Only Mode",
   "text.autoconfig.interactic.option.rightClickPickup": "Right Click Pickup",
   "text.autoconfig.interactic.option.itemFilterEnabled": "Item Filter",
   "text.autoconfig.interactic.option.autoPickup": "Auto Pickup",
   "text.autoconfig.interactic.option.fancyItemRendering": "Fancy Item Rendering",
   "text.autoconfig.interactic.option.renderItemTooltips": "Render Item Tooltips",
-  "text.autoconfig.interactic.option.renderFullTooltip": "Full Tooltips"
+  "text.autoconfig.interactic.option.renderFullTooltip": "Full Tooltips",
+  "text.autoconfig.interactic.option.itemThrowing": "Item Throwing",
+  "text.autoconfig.interactic.option.itemsActAsProjectiles": "Items act as projectiles"
 }

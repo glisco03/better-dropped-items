@@ -1,7 +1,7 @@
 package interactic.mixin;
 
 import interactic.InteracticInit;
-import interactic.util.ItemEntityRotator;
+import interactic.util.InteracticItemExtensions;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -70,7 +70,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         boolean hasDepth = bakedModel.hasDepth();
 
         int renderCount = this.getRenderedAmount(itemStack);
-        ItemEntityRotator rotator = (ItemEntityRotator) entity;
+        InteracticItemExtensions rotator = (InteracticItemExtensions) entity;
 
         final var item = entity.getStack().getItem();
         final boolean itemIsActualBlock = item instanceof BlockItem && !(item instanceof AliasedBlockItem);
