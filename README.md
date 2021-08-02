@@ -1,4 +1,3 @@
-# Better Dropped Items
+# Interactic
 
-https://www.curseforge.com/minecraft/mc-mods/better-dropped-items
-``
+Refined item interactions - fancy animations, throwing, enhanced pickup and more
