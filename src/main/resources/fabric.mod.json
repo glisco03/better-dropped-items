@@ -1,10 +1,9 @@
-
 {
   "schemaVersion": 1,
   "id": "interactic",
   "version": "${version}",
   "name": "Interactic",
-  "description": "Refined item interactions",
+  "description": "Refined item interactions - fancy animations, throwing, enhanced pickup and more",
   "authors": [
     "glisco"
   ],
@@ -12,19 +11,16 @@
     "Draylar"
   ],
   "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/better-dropped-items",
-    "sources": "https://github.com/Draylar/better-dropped-items",
-    "issues": "https://github.com/Draylar/better-dropped-items/issues/"
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/interactic",
+    "sources": "https://github.com/glisco03/interactic",
+    "issues": "https://github.com/glisco03/interactic/issues"
   },
-
   "license": "MIT",
   "icon": "assets/interactic/icon.png",
-
   "environment": "*",
   "mixins": [
     "interactic.mixins.json"
   ],
-
   "entrypoints": {
     "main": [
       "interactic.InteracticInit"
@@ -36,8 +32,16 @@
       "interactic.util.InteracticModMenu"
     ]
   },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/xrwHKktV2d"
+      }
+    }
+  },
   "depends": {
     "fabricloader": ">=0.4.0",
-    "fabric": "*"
+    "fabric": "*",
+    "cloth-config2": ">4.0.0"
   }
 }

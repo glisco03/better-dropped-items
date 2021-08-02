@@ -29,7 +29,10 @@ public class PlayerEntityMixin implements InteracticPlayerExtension {
 
         if (dropPower > 1) {
             item.setVelocity(item.getVelocity().multiply(dropPower));
-            if (retainOwnership) ((InteracticItemExtensions) item).markThrown();
+            if (retainOwnership) {
+                ((InteracticItemExtensions) item).markThrown();
+                if (dropPower >= 5) ((InteracticItemExtensions)item).markFullPower();
+            }
 
             dropPower = 1;
         }

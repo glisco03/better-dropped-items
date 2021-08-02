@@ -9,7 +9,7 @@ public interface InteracticItemExtensions {
     float getRotation();
     void setRotation(float rotation);
 
-    boolean getWasThrown();
     void markThrown();
+    void markFullPower();
 
 }

@@ -3,10 +3,10 @@ package interactic.mixin;
 import interactic.InteracticInit;
 import interactic.util.Helpers;
 import interactic.util.InteracticItemExtensions;
+import interactic.util.ItemDamageSource;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
@@ -29,13 +29,18 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
 
     @Shadow
     @Nullable
-    public abstract UUID getOwner();
+    public abstract UUID getThrower();
 
+    @Shadow
+    private int itemAge;
     @Unique
     private float rotation;
 
     @Unique
     private boolean wasThrown;
+
+    @Unique
+    private boolean wasFullPower;
 
     private ItemEntityMixin(EntityType<?> type, World world) {
         super(type, world);
@@ -52,13 +57,13 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
     }
 
     @Override
-    public boolean getWasThrown() {
-        return wasThrown;
+    public void markThrown() {
+        this.wasThrown = true;
     }
 
     @Override
-    public void markThrown() {
-        this.wasThrown = true;
+    public void markFullPower() {
+        this.wasFullPower = true;
     }
 
     @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ItemEntity;getStack()Lnet/minecraft/item/ItemStack;", ordinal = 0), cancellable = true)
@@ -69,22 +74,26 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void dealThrowingDamage(CallbackInfo ci) {
-        if(!InteracticInit.getConfig().itemsActAsProjectiles) return;
+        if (!InteracticInit.getConfig().itemsActAsProjectiles) return;
+        if (itemAge < 2) return;
 
         if (world.isClient) return;
 
         if (this.isOnGround()) this.wasThrown = false;
         if (!this.wasThrown) return;
 
-        if (!this.getStack().getAttributeModifiers(EquipmentSlot.MAINHAND).containsKey(EntityAttributes.GENERIC_ATTACK_DAMAGE)) return;
-        final double damage = this.getStack().getAttributeModifiers(EquipmentSlot.MAINHAND).get(EntityAttributes.GENERIC_ATTACK_DAMAGE)
+        final var hasDamageModifiers = this.getStack().getAttributeModifiers(EquipmentSlot.MAINHAND).containsKey(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+        if (!(this.wasFullPower || hasDamageModifiers)) return;
+
+        final double damage = hasDamageModifiers ? this.getStack().getAttributeModifiers(EquipmentSlot.MAINHAND).get(EntityAttributes.GENERIC_ATTACK_DAMAGE)
                 .stream().filter(modifier -> modifier.getOperation() == EntityAttributeModifier.Operation.ADDITION)
-                .mapToDouble(EntityAttributeModifier::getValue).sum();
+                .mapToDouble(EntityAttributeModifier::getValue).sum() : 2;
 
         final var entities = world.getNonSpectatingEntities(LivingEntity.class, this.getBoundingBox().expand(0.15));
         if (entities.size() < 1) return;
 
         final var target = entities.get(0);
-        target.damage(DamageSource.thrownProjectile(this, ((ServerWorld) world).getEntity(this.getOwner())), (float) damage);
+        target.damage(new ItemDamageSource((ItemEntity) (Object) this, ((ServerWorld) world).getEntity(this.getThrower())), (float) damage);
+        if (this.getStack().damage(1, world.getRandom(), null)) this.discard();
     }
 }

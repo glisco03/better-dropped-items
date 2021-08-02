@@ -10,10 +10,12 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +28,11 @@ public class InteracticClientInit implements ClientModInitializer {
 
         final var guiRegistry = AutoConfig.getGuiRegistry(InteracticConfig.class);
         guiRegistry.registerAnnotationProvider(new InteracticConfigGuiProvider(), ServerSideConfigEntry.class);
+        guiRegistry.registerPredicateTransformer((list, s, field, o, o1, guiRegistryAccess) -> {
+            final var mutableList = new ArrayList<>(list);
+            mutableList.add(ConfigEntryBuilder.create().startTextDescription(Text.of("This option disables all features in the Global category and removes them from the config screen after reboot. If you try to change them in the config file, they will be overwritten.")).build());
+            return mutableList;
+        }, field -> field.getName().equals("clientOnlyMode"));
     }
 
     private static class InteracticConfigGuiProvider implements GuiProvider {
