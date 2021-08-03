@@ -35,6 +35,14 @@ public class InteracticInit implements ModInitializer {
 
         if (CONFIG.itemFilterEnabled) {
             Registry.register(Registry.ITEM, new Identifier(MOD_ID, "item_filter"), ITEM_FILTER);
+
+            ServerPlayNetworking.registerGlobalReceiver(new Identifier(MOD_ID, "filter_mode_request"), (server, player, handler, buf, responseSender) -> {
+                final boolean newMode = buf.readBoolean();
+                server.execute(() -> {
+                    if (!(player.currentScreenHandler instanceof ItemFilterScreenHandler filterHandler)) return;
+                    filterHandler.setFilterMode(newMode);
+                });
+            });
         }
 
         if (CONFIG.rightClickPickup) {

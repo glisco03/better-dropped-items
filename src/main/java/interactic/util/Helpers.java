@@ -32,10 +32,11 @@ public class Helpers {
         if (filterOptional.isEmpty()) return true;
 
         final var filterStack = filterOptional.get();
+        final var filterNbt = filterStack.getOrCreateTag();
 
-        if (!filterStack.getOrCreateTag().getBoolean("Enabled")) return true;
+        if (!filterNbt.getBoolean("Enabled")) return true;
 
-        return ItemFilterItem.getWhitelist(filterStack).contains(stack.getItem());
+        return filterNbt.getBoolean("BlockMode") != ItemFilterItem.getItemsInFilter(filterStack).contains(stack.getItem());
     }
 
 }

@@ -1,5 +1,7 @@
 package interactic;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -7,11 +9,14 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 
 public class ItemFilterScreenHandler extends ScreenHandler {
 
     public static final int SLOT_COUNT = 9;
     private final Inventory inventory;
+    private final PlayerEntity player;
 
     public ItemFilterScreenHandler(int syncId, PlayerInventory playerInventory) {
         this(syncId, playerInventory, new SimpleInventory(SLOT_COUNT));
@@ -21,7 +26,9 @@ public class ItemFilterScreenHandler extends ScreenHandler {
         super(InteracticInit.ITEM_FILTER_SCREEN_HANDLER, syncId);
         this.inventory = inventory;
         checkSize(inventory, SLOT_COUNT);
-        inventory.onOpen(playerInventory.player);
+
+        this.player = playerInventory.player;
+        inventory.onOpen(player);
 
         int m;
         for (m = 0; m < SLOT_COUNT; ++m) {
@@ -30,14 +37,23 @@ public class ItemFilterScreenHandler extends ScreenHandler {
 
         for (m = 0; m < 3; ++m) {
             for (int l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + m * 9 + 9, 8 + l * 18, m * 18 + 51));
+                this.addSlot(new Slot(playerInventory, l + m * 9 + 9, 8 + l * 18, m * 18 + 60));
             }
         }
 
         for (m = 0; m < 9; ++m) {
-            this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 109));
+            this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 118));
         }
 
+    }
+
+    public void setFilterMode(boolean mode) {
+        if (!(inventory instanceof ItemFilterItem.FilterInventory filterInventory)) return;
+        filterInventory.setFilterMode(mode);
+
+        final var buf = PacketByteBufs.create();
+        buf.writeBoolean(mode);
+        ServerPlayNetworking.send((ServerPlayerEntity) player, new Identifier(InteracticInit.MOD_ID, "set_filter_mode"), buf);
     }
 
     public boolean canUse(PlayerEntity player) {

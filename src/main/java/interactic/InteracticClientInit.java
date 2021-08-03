@@ -8,6 +8,7 @@ import me.shedaniel.autoconfig.gui.registry.api.GuiRegistryAccess;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.minecraft.text.Text;
@@ -33,6 +34,16 @@ public class InteracticClientInit implements ClientModInitializer {
             mutableList.add(ConfigEntryBuilder.create().startTextDescription(Text.of("This option disables all features in the Global category and removes them from the config screen after reboot. If you try to change them in the config file, they will be overwritten.")).build());
             return mutableList;
         }, field -> field.getName().equals("clientOnlyMode"));
+
+        if (InteracticInit.getConfig().itemFilterEnabled) {
+            ClientPlayNetworking.registerGlobalReceiver(new Identifier(InteracticInit.MOD_ID, "set_filter_mode"), (client, handler, buf, responseSender) -> {
+                final boolean newMode = buf.readBoolean();
+                client.execute(() -> {
+                    if (!(client.currentScreen instanceof ItemFilterScreen screen)) return;
+                    screen.blockMode = newMode;
+                });
+            });
+        }
     }
 
     private static class InteracticConfigGuiProvider implements GuiProvider {

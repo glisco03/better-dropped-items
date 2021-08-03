@@ -1,5 +1,7 @@
 package interactic;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
@@ -11,6 +13,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -38,10 +41,11 @@ public class ItemFilterItem extends Item {
             playerStack.getOrCreateTag().putBoolean("Enabled", enabled);
         } else {
             if (world.isClient) return TypedActionResult.success(playerStack);
+            final var inv = new FilterInventory(playerStack);
             final var factory = new NamedScreenHandlerFactory() {
                 @Override
                 public @NotNull ScreenHandler createMenu(int syncId, PlayerInventory playerInv, PlayerEntity player) {
-                    return new ItemFilterScreenHandler(syncId, playerInv, new FilterInventory(playerStack));
+                    return new ItemFilterScreenHandler(syncId, playerInv, inv);
                 }
 
                 @Override
@@ -50,11 +54,14 @@ public class ItemFilterItem extends Item {
                 }
             };
             user.openHandledScreen(factory);
+            final var buf = PacketByteBufs.create();
+            buf.writeBoolean(inv.getFilterMode());
+            ServerPlayNetworking.send((ServerPlayerEntity) user, new Identifier(InteracticInit.MOD_ID, "set_filter_mode"), buf);
         }
         return TypedActionResult.success(playerStack);
     }
 
-    public static List<Item> getWhitelist(ItemStack stack) {
+    public static List<Item> getItemsInFilter(ItemStack stack) {
         final var invTag = stack.getOrCreateTag().getList("Items", NbtElement.COMPOUND_TYPE);
 
         return invTag.stream()
@@ -65,12 +72,20 @@ public class ItemFilterItem extends Item {
 
     public static class FilterInventory implements Inventory {
 
-        public ItemStack filter;
+        public final ItemStack filter;
         private final DefaultedList<ItemStack> items = DefaultedList.ofSize(9, ItemStack.EMPTY);
 
         public FilterInventory(ItemStack filter) {
             this.filter = filter;
             Inventories.readNbt(filter.getOrCreateTag(), items);
+        }
+
+        public void setFilterMode(boolean mode) {
+            filter.getOrCreateTag().putBoolean("BlockMode", mode);
+        }
+
+        public boolean getFilterMode() {
+            return filter.getOrCreateTag().getBoolean("BlockMode");
         }
 
         @Override
