@@ -8,6 +8,7 @@ import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
@@ -65,10 +66,14 @@ public class InteracticInit implements ModInitializer {
                 final boolean dropAll = buf.readBoolean();
                 server.execute(() -> {
                     ((InteracticPlayerExtension) player).setDropPower(power);
-                    player.dropSelectedItem(dropAll);
+                    dropSelected(player, dropAll);
                 });
             });
         }
+    }
+
+    private void dropSelected(PlayerEntity player, boolean dropAll) {
+        player.dropItem(player.getInventory().removeStack(player.getInventory().selectedSlot, dropAll && !player.getInventory().getMainHandStack().isEmpty() ? player.getInventory().getMainHandStack().getCount() : 1), false, true);
     }
 
     public static InteracticConfig getConfig() {

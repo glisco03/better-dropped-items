@@ -90,7 +90,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         //Calculate rotation based on velocity or get the one the item had
         //before it hit the ground
         if (rotator.getRotation() == -1) rotator.setRotation((random.nextInt(20) - 10) * 0.15f);
-        float angle = entity.isOnGround() ? rotator.getRotation() : (float) (rotator.getRotation() + ((MathHelper.clamp(entity.getVelocity().y * 0.1, 0.04, 0.2))) * (entity.isSubmergedInWater() ? 0.25f : 1));
+        float angle = entity.isOnGround() ? rotator.getRotation() : (float) (rotator.getRotation() + ((MathHelper.clamp(entity.getVelocity().y * 0.25, 0.075, 0.3))) * (entity.isSubmergedInWater() ? 0.25f : 1));
 
         //Make sure the angle never exceeds two pi
         if (angle >= TWO_PI) angle -= TWO_PI;
@@ -119,6 +119,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         //Spin the item and store the value inside it should it hit the ground next tick
         matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion((float) (angle + HALF_PI)));
         matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(angle));
+        matrices.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion(angle));
         rotator.setRotation(angle);
 
         //Restore the origin position

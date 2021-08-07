@@ -12,7 +12,6 @@ import net.minecraft.util.ActionResult;
 public class InteracticConfig implements ConfigData {
 
     @ConfigEntry.Category("client")
-    @Comment("Whether Interactic should disable all server-side features automatically")
     @ConfigEntry.Gui.RequiresRestart
     public boolean clientOnlyMode = false;
 
