@@ -3,15 +3,15 @@
   "package": "interactic.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
-    "ItemEntityMixin",
+    "InGameHudMixin",
+    "MinecraftClientMixin",
     "ItemEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "mixins": [
-    "InGameHudMixin",
-    "MinecraftClientMixin",
+    "ItemEntityMixin",
     "PlayerEntityMixin",
     "PlayerInventoryAccessor",
     "RecipeManagerMixin"
