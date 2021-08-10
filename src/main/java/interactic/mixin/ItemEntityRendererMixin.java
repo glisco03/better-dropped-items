@@ -93,7 +93,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         //Calculate rotation based on velocity or get the one the item had
         //before it hit the ground
         if (rotator.getRotation() == -1) rotator.setRotation((random.nextInt(20) - 10) * 0.15f);
-        float angle = entity.isOnGround() ? rotator.getRotation() : (float) (rotator.getRotation() + ((MathHelper.clamp(entity.getVelocity().y * 0.25, 0.075, 0.3))) * (entity.isSubmergedInWater() ? 0.25f : 1) * (MinecraftClient.getInstance().getLastFrameDuration() * 5));
+        float angle = entity.isOnGround() ? rotator.getRotation() : (float) (rotator.getRotation() + ((MathHelper.clamp(entity.getVelocity().y * 0.25, 0.075, 0.3))) * (entity.isSubmergedInWater() ? 0.25f : 1) * (MinecraftClient.getInstance().getLastFrameDuration() * 5) * InteracticInit.getItemRotationSpeedMultiplier());
 
         //Make sure the angle never exceeds two pi
         if (angle >= TWO_PI) angle -= TWO_PI;

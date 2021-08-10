@@ -6,8 +6,10 @@ import interactic.util.InteracticPlayerExtension;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.screen.ScreenHandlerType;
@@ -21,6 +23,7 @@ public class InteracticInit implements ModInitializer {
     public static final Item ITEM_FILTER = new ItemFilterItem();
 
     private static InteracticConfig CONFIG;
+    private static float itemRotationSpeedMultiplier = 1f;
 
     public static final ScreenHandlerType<ItemFilterScreenHandler> ITEM_FILTER_SCREEN_HANDLER =
             ScreenHandlerRegistry.registerSimple(new Identifier(MOD_ID, "item_filter"), ItemFilterScreenHandler::new);
@@ -33,6 +36,8 @@ public class InteracticInit implements ModInitializer {
         AutoConfig.getConfigHolder(InteracticConfig.class).registerLoadListener(InteracticConfig::processClientOnlyMode);
 
         CONFIG = AutoConfig.getConfigHolder(InteracticConfig.class).getConfig();
+
+        if (FabricLoader.getInstance().isModLoaded("iris")) itemRotationSpeedMultiplier = 0.5f;
 
         if (CONFIG.itemFilterEnabled) {
             Registry.register(Registry.ITEM, new Identifier(MOD_ID, "item_filter"), ITEM_FILTER);
@@ -74,6 +79,10 @@ public class InteracticInit implements ModInitializer {
 
     private void dropSelected(PlayerEntity player, boolean dropAll) {
         player.dropItem(player.getInventory().removeStack(player.getInventory().selectedSlot, dropAll && !player.getInventory().getMainHandStack().isEmpty() ? player.getInventory().getMainHandStack().getCount() : 1), false, true);
+    }
+
+    public static float getItemRotationSpeedMultiplier() {
+        return itemRotationSpeedMultiplier;
     }
 
     public static InteracticConfig getConfig() {
