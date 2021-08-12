@@ -2,6 +2,7 @@ package interactic.mixin;
 
 import interactic.InteracticInit;
 import interactic.util.InteracticItemExtensions;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -13,11 +14,12 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.AliasedBlockItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -67,27 +69,40 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         this.random.setSeed(seed);
 
         matrices.push();
-        BakedModel bakedModel = this.itemRenderer.getHeldItemModel(itemStack, entity.world, null, seed);
-        boolean hasDepth = bakedModel.hasDepth();
 
-        int renderCount = this.getRenderedAmount(itemStack);
+        BakedModel bakedModel = this.itemRenderer.getHeldItemModel(itemStack, entity.world, null, seed);
+        final int renderCount = this.getRenderedAmount(itemStack);
         InteracticItemExtensions rotator = (InteracticItemExtensions) entity;
 
         final var item = entity.getStack().getItem();
-        final boolean itemIsActualBlock = item instanceof BlockItem && !(item instanceof AliasedBlockItem);
-        //final boolean shouldNotBeRotated = itemIsActualBlock && ((BlockItem)item).getBlock().getOutlineShape(((BlockItem)item).getBlock().getDefaultState(), entity.world, entity.getBlockPos(), ShapeContext.absent()).getMax(Direction.Axis.Y) <= 0.5;
+        final boolean treatAsDepthModel = item instanceof BlockItem && bakedModel.hasDepth();
 
-        float scaleX = bakedModel.getTransformation().ground.scale.getX();
-        float scaleY = bakedModel.getTransformation().ground.scale.getY();
-        float scaleZ = bakedModel.getTransformation().ground.scale.getZ();
+        final var transform = bakedModel.getTransformation().ground;
 
-        float groundDistance = itemIsActualBlock ? 0 : (float) (0.125 - 0.0625 * scaleZ);
-        if (!itemIsActualBlock) groundDistance -= (renderCount - 1) * 0.05 * scaleZ;
+        final float scaleX = bakedModel.getTransformation().ground.scale.getX();
+        final float scaleY = bakedModel.getTransformation().ground.scale.getY();
+        final float scaleZ = bakedModel.getTransformation().ground.scale.getZ();
+
+        //Calculate the distance the model's center is from the item entity's center using the block outline shape
+        final double blockHeight = !treatAsDepthModel ? 0 : ((BlockItem) item).getBlock().getOutlineShape(((BlockItem) item).getBlock().getDefaultState(), entity.world, entity.getBlockPos(), ShapeContext.absent()).getMax(Direction.Axis.Y);
+        final boolean isFlatBlock = treatAsDepthModel && blockHeight <= 0.75;
+        final double distanceToCenter = (0.5 - blockHeight + blockHeight / 2) * 0.25;
+
+        //Translate so that everything happens in the middle of the item hitbox
+        matrices.translate(0, 0.125f, 0);
+
+        //Move the model, so it's center is at the base of the item entity
+        if (treatAsDepthModel) matrices.translate(0, distanceToCenter, 0);
+
+        //Calculate ground distance from either the amount of items or block height
+        float groundDistance = treatAsDepthModel ? (float) distanceToCenter : (float) (0.125 - 0.0625 * scaleZ);
+        if (!treatAsDepthModel) groundDistance -= (renderCount - 1) * 0.05 * scaleZ;
         matrices.translate(0, -groundDistance, 0);
 
         //Translate randomly to avoid Z-Fighting
         matrices.translate(0, (random.nextDouble() - 0.5) * 0.005, 0);
 
+        //Rotate the item by its yaw to get some randomness for the spinning axis
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(entity.getYaw()));
 
         //Calculate rotation based on velocity or get the one the item had
@@ -116,21 +131,18 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
             if (angle > TWO_PI) angle = 0;
         }
 
-        //Translate up so we rotate around the center of the item entity
-        matrices.translate(0, 0.125f, 0);
+        //Move the matrix back so the rotation happens around the model's center
+        if (treatAsDepthModel) matrices.translate(0, -distanceToCenter, 0);
 
         //Spin the item and store the value inside it should it hit the ground next tick
-        matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion((float) (angle + HALF_PI)));
+        matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion((float) (angle + (isFlatBlock ? 0 : HALF_PI))));
         rotator.setRotation(angle);
 
-        //Restore the origin position
-        matrices.translate(0, -0.125f, 0);
+        //Undo the translation from before
+        if (treatAsDepthModel) matrices.translate(0, distanceToCenter, 0);
 
         //Translate so that the origin gets moved back for stacks with multiple items rendered
         matrices.translate(0, 0, ((0.09375 - (renderCount * 0.1)) * 0.5) * scaleZ);
-
-        // Translate block items down because for some reason they like to float otherwise
-        if (itemIsActualBlock) matrices.translate(0, -0.25 * scaleY, 0);
 
         float x;
         float y;
@@ -140,12 +152,12 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
             //Only apply random transformation to the current item
             matrices.push();
 
-            //Only apply transformations to items from the second one onwards
+            //Only apply transformations to items from the second one onward
             if (i > 0) {
 
                 //Decide whether to use random rotation or positioning based on whether the
                 //item has depth, which most of the time means that it's a block
-                if (hasDepth) {
+                if (treatAsDepthModel) {
                     x = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
                     y = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
                     float z = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
@@ -157,12 +169,16 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
                 }
             }
 
-            this.itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GROUND, false, matrices, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV, bakedModel);
+            //Only apply the scale and rotation part of the model transform to avoid weird issues with alignment and rotation
+            matrices.multiply(new Quaternion(transform.rotation.getX(), transform.rotation.getY(), transform.rotation.getZ(), true));
+            matrices.scale(scaleX, scaleY, scaleZ);
+
+            this.itemRenderer.renderItem(itemStack, ModelTransformation.Mode.NONE, false, matrices, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV, bakedModel);
 
             matrices.pop();
 
             // Translate normal items to create visual layering
-            if (!hasDepth) {
+            if (!treatAsDepthModel) {
                 matrices.translate(0, 0, 0.1F * scaleZ);
             }
         }
