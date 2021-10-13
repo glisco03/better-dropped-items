@@ -47,6 +47,7 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
         this.playerInventoryTitleY = 69420;
     }
 
+    @SuppressWarnings("IntegerDivisionInFloatingPointContext")
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         super.render(matrices, mouseX, mouseY, delta);
@@ -54,13 +55,13 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
         int i = (this.width - this.backgroundWidth) / 2;
         int j = (this.height - this.backgroundHeight) / 2;
 
-        client.textRenderer.draw(matrices, "Mode",  i + 8, j + 44, 0x404040);
+        client.textRenderer.draw(matrices, "Mode", i + 8, j + 44, 0x404040);
 
         int blockWidth = textRenderer.getWidth("Block");
         int allowWidth = textRenderer.getWidth("Allow");
 
-        client.textRenderer.drawWithShadow(matrices, "Block",  i + 73 - blockWidth / 2, j + 44, 0xFFFFFF);
-        client.textRenderer.drawWithShadow(matrices, "Allow",  i + 138 - allowWidth / 2, j + 44, 0xFFFFFF);
+        client.textRenderer.drawWithShadow(matrices, "Block", i + 73 - blockWidth / 2, j + 44, 0xFFFFFF);
+        client.textRenderer.drawWithShadow(matrices, "Allow", i + 138 - allowWidth / 2, j + 44, 0xFFFFFF);
 
         this.drawMouseoverTooltip(matrices, mouseX, mouseY);
     }

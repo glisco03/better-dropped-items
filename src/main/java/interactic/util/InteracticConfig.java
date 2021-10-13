@@ -56,6 +56,10 @@ public class InteracticConfig implements ConfigData {
     @Comment("Whether Interactic should render the full tooltip of items")
     public boolean renderFullTooltip = true;
 
+    @ConfigEntry.Category("client")
+    @Comment("Whether your arms should swing when dropping items")
+    public boolean swingArm = true;
+
     public static ActionResult processClientOnlyMode(ConfigHolder<InteracticConfig> configHolder, InteracticConfig config) {
         if (!config.clientOnlyMode) return ActionResult.PASS;
 

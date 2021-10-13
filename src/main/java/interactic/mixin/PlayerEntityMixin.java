@@ -4,6 +4,7 @@ import interactic.InteracticInit;
 import interactic.util.InteracticItemExtensions;
 import interactic.util.InteracticPlayerExtension;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -12,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-@Mixin(net.minecraft.entity.player.PlayerEntity.class)
+@Mixin(PlayerEntity.class)
 public class PlayerEntityMixin implements InteracticPlayerExtension {
 
     @Unique
@@ -31,7 +32,7 @@ public class PlayerEntityMixin implements InteracticPlayerExtension {
             item.setVelocity(item.getVelocity().multiply(dropPower));
             if (retainOwnership) {
                 ((InteracticItemExtensions) item).markThrown();
-                if (dropPower >= 5) ((InteracticItemExtensions)item).markFullPower();
+                if (dropPower >= 5) ((InteracticItemExtensions) item).markFullPower();
             }
 
             dropPower = 1;

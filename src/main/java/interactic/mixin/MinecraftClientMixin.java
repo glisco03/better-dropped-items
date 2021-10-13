@@ -73,6 +73,12 @@ public class MinecraftClientMixin {
         }
     }
 
+    @Redirect(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;swingHand(Lnet/minecraft/util/Hand;)V"))
+    private void dontSwingArms(ClientPlayerEntity player, Hand hand) {
+        if (!InteracticInit.getConfig().swingArm) return;
+        player.swingHand(hand);
+    }
+
     @Inject(method = "handleInputEvents", at = @At("RETURN"))
     private void afterDrop(CallbackInfo ci) {
         if (!InteracticInit.getConfig().itemThrowing) return;
@@ -88,10 +94,10 @@ public class MinecraftClientMixin {
                 ClientPlayNetworking.send(new Identifier(InteracticInit.MOD_ID, "drop_with_power"), buffer);
 
                 if (!this.player.getInventory().removeStack(this.player.getInventory().selectedSlot, dropAll && !this.player.getInventory().getMainHandStack().isEmpty() ? this.player.getInventory().getMainHandStack().getCount() : 1).isEmpty()) {
-                    this.player.swingHand(Hand.MAIN_HAND);
+                    if (InteracticInit.getConfig().swingArm) this.player.swingHand(Hand.MAIN_HAND);
                 }
             } else if (this.player.dropSelectedItem(dropAll)) {
-                this.player.swingHand(Hand.MAIN_HAND);
+                if (InteracticInit.getConfig().swingArm) this.player.swingHand(Hand.MAIN_HAND);
             }
 
             dropPower = 0.9f;
