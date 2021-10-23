@@ -36,9 +36,9 @@ public class ItemFilterItem extends Item {
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         final var playerStack = user.getStackInHand(hand);
         if (user.isSneaking()) {
-            var enabled = playerStack.getOrCreateTag().getBoolean("Enabled");
+            var enabled = playerStack.getOrCreateNbt().getBoolean("Enabled");
             enabled = !enabled;
-            playerStack.getOrCreateTag().putBoolean("Enabled", enabled);
+            playerStack.getOrCreateNbt().putBoolean("Enabled", enabled);
         } else {
             if (world.isClient) return TypedActionResult.success(playerStack);
             final var inv = new FilterInventory(playerStack);
@@ -62,7 +62,7 @@ public class ItemFilterItem extends Item {
     }
 
     public static List<Item> getItemsInFilter(ItemStack stack) {
-        final var invTag = stack.getOrCreateTag().getList("Items", NbtElement.COMPOUND_TYPE);
+        final var invTag = stack.getOrCreateNbt().getList("Items", NbtElement.COMPOUND_TYPE);
 
         return invTag.stream()
                 .map(s -> Registry.ITEM.getOrEmpty(Identifier.tryParse(((NbtCompound) s).getString("id"))).orElse(null))
@@ -77,15 +77,15 @@ public class ItemFilterItem extends Item {
 
         public FilterInventory(ItemStack filter) {
             this.filter = filter;
-            Inventories.readNbt(filter.getOrCreateTag(), items);
+            Inventories.readNbt(filter.getOrCreateNbt(), items);
         }
 
         public void setFilterMode(boolean mode) {
-            filter.getOrCreateTag().putBoolean("BlockMode", mode);
+            filter.getOrCreateNbt().putBoolean("BlockMode", mode);
         }
 
         public boolean getFilterMode() {
-            return filter.getOrCreateTag().getBoolean("BlockMode");
+            return filter.getOrCreateNbt().getBoolean("BlockMode");
         }
 
         @Override
@@ -124,7 +124,7 @@ public class ItemFilterItem extends Item {
 
         @Override
         public void markDirty() {
-            Inventories.writeNbt(filter.getOrCreateTag(), items);
+            Inventories.writeNbt(filter.getOrCreateNbt(), items);
         }
 
         @Override

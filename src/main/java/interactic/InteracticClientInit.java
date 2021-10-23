@@ -23,7 +23,7 @@ import java.util.List;
 public class InteracticClientInit implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        FabricModelPredicateProviderRegistry.register(new Identifier("enabled"), (stack, world, entity, seed) -> stack.getOrCreateTag().getBoolean("Enabled") ? 1 : 0);
+        FabricModelPredicateProviderRegistry.register(new Identifier("enabled"), (stack, world, entity, seed) -> stack.getOrCreateNbt().getBoolean("Enabled") ? 1 : 0);
 
         ScreenRegistry.register(InteracticInit.ITEM_FILTER_SCREEN_HANDLER, ItemFilterScreen::new);
 
