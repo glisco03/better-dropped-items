@@ -70,7 +70,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
         matrices.push();
 
-        BakedModel bakedModel = this.itemRenderer.getHeldItemModel(itemStack, entity.world, null, seed);
+        BakedModel bakedModel = this.itemRenderer.getModel(itemStack, entity.world, null, seed);
         final int renderCount = this.getRenderedAmount(itemStack);
         InteracticItemExtensions rotator = (InteracticItemExtensions) entity;
 
