@@ -101,6 +101,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
         //Translate randomly to avoid Z-Fighting
         matrices.translate(0, (random.nextDouble() - 0.5) * 0.005, 0);
+        if (treatAsDepthModel && !isFlatBlock) matrices.translate(0, -.1, 0);
 
         //Rotate the item by its yaw to get some randomness for the spinning axis
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(entity.getYaw()));
@@ -138,8 +139,16 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion((float) (angle + (isFlatBlock ? 0 : HALF_PI))));
         rotator.setRotation(angle);
 
+        // If the block is chonky, rotate it randomly
+        if (treatAsDepthModel && !isFlatBlock) {
+            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(this.random.nextFloat(45)));
+            matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(this.random.nextFloat(45)));
+        }
+
         //Undo the translation from before
-        if (treatAsDepthModel) matrices.translate(0, distanceToCenter, 0);
+        if (treatAsDepthModel) {
+            matrices.translate(0, distanceToCenter, 0);
+        }
 
         //Translate so that the origin gets moved back for stacks with multiple items rendered
         matrices.translate(0, 0, ((0.09375 - (renderCount * 0.1)) * 0.5) * scaleZ);
@@ -158,9 +167,9 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
                 //Decide whether to use random rotation or positioning based on whether the
                 //item has depth, which most of the time means that it's a block
                 if (treatAsDepthModel) {
-                    x = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
-                    y = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
-                    float z = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
+                    x = (this.random.nextFloat() * 2f - 1f) * .1f;
+                    y = (this.random.nextFloat() * 2f - 1f) * .1f;
+                    float z = (this.random.nextFloat() * 2f - 1f) * .1f;
                     matrices.translate(x, y, z);
                 } else {
                     matrices.translate(0, 0.125f, 0.0D);

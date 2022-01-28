@@ -11,6 +11,8 @@
   "text.autoconfig.interactic.category.global": "Global Options",
   "text.autoconfig.interactic.category.client": "Client-Only Options",
 
+  "key.interactic.pickup_item": "[Interactic] Pick up Item",
+
   "text.autoconfig.interactic.option.clientOnlyMode": "Client Only Mode",
   "text.autoconfig.interactic.option.rightClickPickup": "Right Click Pickup",
   "text.autoconfig.interactic.option.itemFilterEnabled": "Item Filter",

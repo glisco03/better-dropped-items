@@ -8,11 +8,17 @@ import me.shedaniel.autoconfig.gui.registry.api.GuiRegistryAccess;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 
 import java.lang.reflect.Field;
@@ -21,11 +27,22 @@ import java.util.Collections;
 import java.util.List;
 
 public class InteracticClientInit implements ClientModInitializer {
+
+    public static final KeyBinding PICKUP_ITEM = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.interactic.pickup_item",
+            InputUtil.UNKNOWN_KEY.getCode(), "key.categories.misc"));
+
     @Override
     public void onInitializeClient() {
         FabricModelPredicateProviderRegistry.register(new Identifier("enabled"), (stack, world, entity, seed) -> stack.getOrCreateNbt().getBoolean("Enabled") ? 1 : 0);
 
         ScreenRegistry.register(InteracticInit.ITEM_FILTER_SCREEN_HANDLER, ItemFilterScreen::new);
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            while (PICKUP_ITEM.wasPressed()) {
+                ClientPlayNetworking.send(new Identifier(InteracticInit.MOD_ID, "pickup"), PacketByteBufs.empty());
+                client.player.swingHand(Hand.MAIN_HAND);
+            }
+        });
 
         final var guiRegistry = AutoConfig.getGuiRegistry(InteracticConfig.class);
         guiRegistry.registerAnnotationProvider(new InteracticConfigGuiProvider(), ServerSideConfigEntry.class);

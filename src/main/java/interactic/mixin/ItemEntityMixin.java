@@ -101,4 +101,9 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
         target.damage(damageSource, (float) damage);
         if (this.getStack().damage(1, world.getRandom(), null)) this.discard();
     }
+
+    @Override
+    public float getTargetingMargin() {
+        return .2f;
+    }
 }

@@ -9,11 +9,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Collection;
-import java.util.Optional;
 
 public class Helpers {
 
@@ -21,7 +22,18 @@ public class Helpers {
         Vec3d normalizedFacing = camera.getRotationVec(1.0F);
         Vec3d denormalizedFacing = camera.getCameraPosVec(0).add(normalizedFacing.x * reach, normalizedFacing.y * reach, normalizedFacing.z * reach);
 
-        final EntityHitResult result = ProjectileUtil.raycast(camera, camera.getCameraPosVec(0), denormalizedFacing, camera.getBoundingBox().stretch(normalizedFacing.multiply(reach)).expand(1, 1, 1), entity -> entity instanceof ItemEntity, reach * reach);
+        final EntityHitResult result = ProjectileUtil.raycast(camera, camera.getCameraPosVec(0), denormalizedFacing,
+                camera.getBoundingBox().stretch(normalizedFacing.multiply(reach)).expand(1), entity -> entity instanceof ItemEntity, reach * reach);
+
+        if (result != null) {
+            var distance = camera.getPos().distanceTo(result.getPos()) - .3;
+            if (camera.raycast(distance, 1f, false) instanceof BlockHitResult blockResult){
+                if (!camera.world.getBlockState(blockResult.getBlockPos()).getCollisionShape(camera.world, blockResult.getBlockPos()).isEmpty()) {
+                    return null;
+                }
+            }
+        }
+
         return result == null ? null : (ItemEntity) result.getEntity();
     }
 

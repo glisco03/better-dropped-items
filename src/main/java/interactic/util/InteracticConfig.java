@@ -17,7 +17,7 @@ public class InteracticConfig implements ConfigData {
 
     @ServerSideConfigEntry
     @ConfigEntry.Category("global")
-    @Comment("Whether players can pick up items by clicking them")
+    @Comment("Whether players can pick up items by clicking them. This also affects the keybind")
     @ConfigEntry.Gui.RequiresRestart
     public boolean rightClickPickup = true;
 
