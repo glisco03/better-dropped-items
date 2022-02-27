@@ -87,7 +87,7 @@ public class MinecraftClientMixin {
     private void afterDrop(CallbackInfo ci) {
         if (!InteracticInit.getConfig().itemThrowing) return;
 
-        if (dropPower > 0.9f && !options.keyDrop.isPressed()) {
+        if (dropPower > 0.9f && !options.dropKey.isPressed()) {
             final var dropAll = Screen.hasControlDown();
 
             if (dropPower >= 1.5) {
