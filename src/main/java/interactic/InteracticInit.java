@@ -3,6 +3,8 @@ package interactic;
 import interactic.util.Helpers;
 import interactic.util.InteracticConfig;
 import interactic.util.InteracticPlayerExtension;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
@@ -27,15 +29,12 @@ public class InteracticInit implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        // TODO re-enable config serialization
-        // TODO please, please fucking remember to yeet this
-        CONFIG = new InteracticConfig();
-//        AutoConfig.register(InteracticConfig.class, JanksonConfigSerializer::new);
-//
-//        AutoConfig.getConfigHolder(InteracticConfig.class).registerSaveListener(InteracticConfig::processClientOnlyMode);
-//        AutoConfig.getConfigHolder(InteracticConfig.class).registerLoadListener(InteracticConfig::processClientOnlyMode);
-//
-//        CONFIG = AutoConfig.getConfigHolder(InteracticConfig.class).getConfig();
+        AutoConfig.register(InteracticConfig.class, JanksonConfigSerializer::new);
+
+        AutoConfig.getConfigHolder(InteracticConfig.class).registerSaveListener(InteracticConfig::processClientOnlyMode);
+        AutoConfig.getConfigHolder(InteracticConfig.class).registerLoadListener(InteracticConfig::processClientOnlyMode);
+
+        CONFIG = AutoConfig.getConfigHolder(InteracticConfig.class).getConfig();
 
         if (FabricLoader.getInstance().isModLoaded("iris")) itemRotationSpeedMultiplier = 0.5f;
 

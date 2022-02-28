@@ -1,5 +1,12 @@
 package interactic;
 
+import interactic.util.InteracticConfig;
+import interactic.util.ServerSideConfigEntry;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.gui.registry.api.GuiProvider;
+import me.shedaniel.autoconfig.gui.registry.api.GuiRegistryAccess;
+import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
+import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -9,8 +16,15 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class InteracticClientInit implements ClientModInitializer {
 
@@ -30,14 +44,13 @@ public class InteracticClientInit implements ClientModInitializer {
             }
         });
 
-        // TODO re-enable cloth gui integration
-//        final var guiRegistry = AutoConfig.getGuiRegistry(InteracticConfig.class);
-//        guiRegistry.registerAnnotationProvider(new InteracticConfigGuiProvider(), ServerSideConfigEntry.class);
-//        guiRegistry.registerPredicateTransformer((list, s, field, o, o1, guiRegistryAccess) -> {
-//            final var mutableList = new ArrayList<>(list);
-//            mutableList.add(ConfigEntryBuilder.create().startTextDescription(Text.of("This option disables all features in the Global category and removes them from the config screen after reboot. If you try to change them in the config file, they will be overwritten.")).build());
-//            return mutableList;
-//        }, field -> field.getName().equals("clientOnlyMode"));
+        final var guiRegistry = AutoConfig.getGuiRegistry(InteracticConfig.class);
+        guiRegistry.registerAnnotationProvider(new InteracticConfigGuiProvider(), ServerSideConfigEntry.class);
+        guiRegistry.registerPredicateTransformer((list, s, field, o, o1, guiRegistryAccess) -> {
+            final var mutableList = new ArrayList<>(list);
+            mutableList.add(ConfigEntryBuilder.create().startTextDescription(Text.of("This option disables all features in the Global category and removes them from the config screen after reboot. If you try to change them in the config file, they will be overwritten.")).build());
+            return mutableList;
+        }, field -> field.getName().equals("clientOnlyMode"));
 
         if (InteracticInit.getConfig().itemFilterEnabled) {
             ClientPlayNetworking.registerGlobalReceiver(new Identifier(InteracticInit.MOD_ID, "set_filter_mode"), (client, handler, buf, responseSender) -> {
@@ -50,30 +63,30 @@ public class InteracticClientInit implements ClientModInitializer {
         }
     }
 
-    // TODO re-enable config gui provider
-    private static class InteracticConfigGuiProvider /*implements GuiProvider*/ {
-//
-//        @Override
-//        public List<AbstractConfigListEntry> get(String s, Field field, Object config, Object defaults, GuiRegistryAccess guiRegistryAccess) {
-//            ConfigEntryBuilder builder = ConfigEntryBuilder.create();
-//
-//            if (((InteracticConfig) config).clientOnlyMode) return Collections.emptyList();
-//
-//            try {
-//                return Collections.singletonList(builder.startBooleanToggle(new TranslatableText(s), field.getBoolean(config))
-//                        .setSaveConsumer(aBoolean -> trySetBoolean(field, config, aBoolean))
-//                        .setDefaultValue(field.getBoolean(defaults)).build());
-//            } catch (IllegalAccessException e) {
-//                return Collections.emptyList();
-//            }
-//        }
-//
-//        private void trySetBoolean(Field f, Object o, boolean value) {
-//            try {
-//                f.setBoolean(o, value);
-//            } catch (IllegalAccessException e) {
-//                e.printStackTrace();
-//            }
-//        }
+    private static class InteracticConfigGuiProvider implements GuiProvider {
+
+        @Override
+        @SuppressWarnings("rawtypes")
+        public List<AbstractConfigListEntry> get(String s, Field field, Object config, Object defaults, GuiRegistryAccess guiRegistryAccess) {
+            ConfigEntryBuilder builder = ConfigEntryBuilder.create();
+
+            if (((InteracticConfig) config).clientOnlyMode) return Collections.emptyList();
+
+            try {
+                return Collections.singletonList(builder.startBooleanToggle(new TranslatableText(s), field.getBoolean(config))
+                        .setSaveConsumer(aBoolean -> trySetBoolean(field, config, aBoolean))
+                        .setDefaultValue(field.getBoolean(defaults)).build());
+            } catch (IllegalAccessException e) {
+                return Collections.emptyList();
+            }
+        }
+
+        private void trySetBoolean(Field f, Object o, boolean value) {
+            try {
+                f.setBoolean(o, value);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
