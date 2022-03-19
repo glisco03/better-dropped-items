@@ -57,7 +57,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         this.shadowRadius = 0;
     }
 
-    @Inject(at = @At("HEAD"), method = "render", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/entity/ItemEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", cancellable = true)
     private void render(ItemEntity entity, float f, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo callback) {
         if (!InteracticInit.getConfig().fancyItemRendering) return;
 

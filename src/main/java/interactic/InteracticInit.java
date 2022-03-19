@@ -19,7 +19,7 @@ public class InteracticInit implements ModInitializer {
 
     public static final String MOD_ID = "interactic";
 
-    public static final Item ITEM_FILTER = new ItemFilterItem();
+    private static Item ITEM_FILTER = null;
 
     private static InteracticConfig CONFIG;
     private static float itemRotationSpeedMultiplier = 1f;
@@ -39,7 +39,7 @@ public class InteracticInit implements ModInitializer {
         if (FabricLoader.getInstance().isModLoaded("iris")) itemRotationSpeedMultiplier = 0.5f;
 
         if (CONFIG.itemFilterEnabled) {
-            Registry.register(Registry.ITEM, new Identifier(MOD_ID, "item_filter"), ITEM_FILTER);
+            ITEM_FILTER = Registry.register(Registry.ITEM, new Identifier(MOD_ID, "item_filter"), new ItemFilterItem());
 
             ServerPlayNetworking.registerGlobalReceiver(new Identifier(MOD_ID, "filter_mode_request"), (server, player, handler, buf, responseSender) -> {
                 final boolean newMode = buf.readBoolean();
@@ -74,6 +74,10 @@ public class InteracticInit implements ModInitializer {
                 });
             });
         }
+    }
+
+    public static Item getItemFilter() {
+        return ITEM_FILTER;
     }
 
     private void dropSelected(PlayerEntity player, boolean dropAll) {

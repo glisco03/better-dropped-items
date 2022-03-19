@@ -11,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Collection;
@@ -43,7 +42,7 @@ public class Helpers {
         if (!InteracticInit.getConfig().autoPickup) return false;
         if (!InteracticInit.getConfig().itemFilterEnabled) return true;
 
-        var filterOptional = ((PlayerInventoryAccessor) player.getInventory()).getCombinedInventory().stream().flatMap(Collection::stream).filter(itemStack -> itemStack.isOf(InteracticInit.ITEM_FILTER)).findFirst();
+        var filterOptional = ((PlayerInventoryAccessor) player.getInventory()).getCombinedInventory().stream().flatMap(Collection::stream).filter(itemStack -> itemStack.isOf(InteracticInit.getItemFilter())).findFirst();
         if (filterOptional.isEmpty()) return true;
 
         final ItemStack filterStack = filterOptional.get();
