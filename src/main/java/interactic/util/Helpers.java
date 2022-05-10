@@ -36,10 +36,10 @@ public class Helpers {
         return result == null ? null : (ItemEntity) result.getEntity();
     }
 
-    public static boolean canPlayerPickUpItem(PlayerEntity player, ItemStack stack) {
+    public static boolean canPlayerPickUpItem(PlayerEntity player, ItemEntity item) {
         if (player.isSneaking()) return true;
 
-        if (!InteracticInit.getConfig().autoPickup) return false;
+        if (!InteracticInit.getConfig().autoPickup && !item.getScoreboardTags().contains("interactic.ignore_auto_pickup_rule")) return false;
         if (!InteracticInit.getConfig().itemFilterEnabled) return true;
 
         var filterOptional = ((PlayerInventoryAccessor) player.getInventory()).getCombinedInventory().stream().flatMap(Collection::stream).filter(itemStack -> itemStack.isOf(InteracticInit.getItemFilter())).findFirst();
@@ -50,7 +50,7 @@ public class Helpers {
 
         if (!filterNbt.getBoolean("Enabled")) return true;
 
-        return filterNbt.getBoolean("BlockMode") != ItemFilterItem.getItemsInFilter(filterStack).contains(stack.getItem());
+        return filterNbt.getBoolean("BlockMode") != ItemFilterItem.getItemsInFilter(filterStack).contains(item.getStack().getItem());
     }
 
 }

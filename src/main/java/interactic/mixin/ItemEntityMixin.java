@@ -69,7 +69,7 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
 
     @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ItemEntity;getStack()Lnet/minecraft/item/ItemStack;", ordinal = 0), cancellable = true)
     private void controlPickup(PlayerEntity player, CallbackInfo ci) {
-        if (Helpers.canPlayerPickUpItem(player, getStack())) return;
+        if (Helpers.canPlayerPickUpItem(player, (ItemEntity) (Object) this)) return;
         ci.cancel();
     }
 
