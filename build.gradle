@@ -4,6 +4,7 @@ plugins {
 	id 'io.github.juuxel.loom-quiltflower' version '1.6.0'
 }
 
+// TODO fix mc dep in fmj
 version = "${project.mod_version}+${project.minecraft_base_version}"
 group = project.maven_group
 

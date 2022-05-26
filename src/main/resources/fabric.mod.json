@@ -7,13 +7,10 @@
   "authors": [
     "glisco"
   ],
-  "contributors": [
-    "Draylar"
-  ],
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/interactic",
-    "sources": "https://github.com/glisco03/interactic",
-    "issues": "https://github.com/glisco03/interactic/issues"
+    "sources": "https://github.com/gliscowo/interactic",
+    "issues": "https://github.com/gliscowo/interactic/issues"
   },
   "license": "MIT",
   "icon": "assets/interactic/icon.png",
@@ -42,7 +39,7 @@
   "depends": {
     "fabricloader": ">=0.4.0",
     "fabric": "*",
-    "minecraft": ">=1.18.2",
-    "cloth-config": ">=6.0.0"
+    "minecraft": ">=1.19-beta.3",
+    "cloth-config": ">=7.0.0"
   }
 }

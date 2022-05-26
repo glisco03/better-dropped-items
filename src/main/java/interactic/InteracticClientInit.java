@@ -17,7 +17,6 @@ import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredica
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 
@@ -73,7 +72,7 @@ public class InteracticClientInit implements ClientModInitializer {
             if (((InteracticConfig) config).clientOnlyMode) return Collections.emptyList();
 
             try {
-                return Collections.singletonList(builder.startBooleanToggle(new TranslatableText(s), field.getBoolean(config))
+                return Collections.singletonList(builder.startBooleanToggle(Text.translatable(s), field.getBoolean(config))
                         .setSaveConsumer(aBoolean -> trySetBoolean(field, config, aBoolean))
                         .setDefaultValue(field.getBoolean(defaults)).build());
             } catch (IllegalAccessException e) {

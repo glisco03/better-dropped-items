@@ -6,7 +6,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.ProjectileDamageSource;
 import net.minecraft.item.*;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.Nullable;
 
 public class ItemDamageSource extends ProjectileDamageSource {
@@ -25,6 +24,6 @@ public class ItemDamageSource extends ProjectileDamageSource {
         if (itemStack.getItem() instanceof PickaxeItem) key = key + ".pickaxe";
         if (itemStack.getItem() instanceof ShovelItem) key = key + ".shovel";
         if (itemStack.getItem() instanceof HoeItem) key = key + ".hoe";
-        return new TranslatableText(key, entity.getDisplayName(), attackerName, itemStack.toHoverableText());
+        return Text.translatable(key, entity.getDisplayName(), attackerName, itemStack.toHoverableText());
     }
 }
