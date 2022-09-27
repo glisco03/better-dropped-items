@@ -60,6 +60,10 @@ public class InteracticConfig implements ConfigData {
     @Comment("Whether your arms should swing when dropping items")
     public boolean swingArm = true;
 
+    @ConfigEntry.Category("client")
+    @Comment("Whether block items should lay flat on the ground")
+    public boolean blocksLayFlat = false;
+
     public static ActionResult processClientOnlyMode(ConfigHolder<InteracticConfig> configHolder, InteracticConfig config) {
         if (!config.clientOnlyMode) return ActionResult.PASS;
 

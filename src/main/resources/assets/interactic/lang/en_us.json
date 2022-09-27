@@ -22,5 +22,6 @@
   "text.autoconfig.interactic.option.renderFullTooltip": "Full Tooltips",
   "text.autoconfig.interactic.option.itemThrowing": "Item Throwing",
   "text.autoconfig.interactic.option.itemsActAsProjectiles": "Items act as projectiles",
-  "text.autoconfig.interactic.option.swingArm": "Swing arm on drop"
+  "text.autoconfig.interactic.option.swingArm": "Swing arm on drop",
+  "text.autoconfig.interactic.option.blocksLayFlat": "Blocks lay flat"
 }
