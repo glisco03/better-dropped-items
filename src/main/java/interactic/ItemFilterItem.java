@@ -1,5 +1,6 @@
 package interactic;
 
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
@@ -7,10 +8,11 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,7 +21,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,8 +29,14 @@ import java.util.Objects;
 
 public class ItemFilterItem extends Item {
 
+    static {
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
+            entries.add(InteracticInit.getItemFilter());
+        });
+    }
+
     public ItemFilterItem() {
-        super(new Settings().group(ItemGroup.MISC).maxCount(1));
+        super(new Settings().maxCount(1));
     }
 
     @Override
@@ -65,7 +72,7 @@ public class ItemFilterItem extends Item {
         final var invTag = stack.getOrCreateNbt().getList("Items", NbtElement.COMPOUND_TYPE);
 
         return invTag.stream()
-                .map(s -> Registry.ITEM.getOrEmpty(Identifier.tryParse(((NbtCompound) s).getString("id"))).orElse(null))
+                .map(s -> Registries.ITEM.getOrEmpty(Identifier.tryParse(((NbtCompound) s).getString("id"))).orElse(null))
                 .filter(Objects::nonNull)
                 .toList();
     }

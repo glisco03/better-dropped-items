@@ -11,9 +11,10 @@ import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 public class InteracticInit implements ModInitializer {
 
@@ -25,7 +26,7 @@ public class InteracticInit implements ModInitializer {
     private static float itemRotationSpeedMultiplier = 1f;
 
     public static final ScreenHandlerType<ItemFilterScreenHandler> ITEM_FILTER_SCREEN_HANDLER =
-            ScreenHandlerRegistry.registerSimple(new Identifier(MOD_ID, "item_filter"), ItemFilterScreenHandler::new);
+            Registry.register(Registries.SCREEN_HANDLER, new Identifier(MOD_ID, "item_filter"), new ScreenHandlerType<>(ItemFilterScreenHandler::new));
 
     @Override
     public void onInitialize() {
@@ -39,7 +40,7 @@ public class InteracticInit implements ModInitializer {
         if (FabricLoader.getInstance().isModLoaded("iris")) itemRotationSpeedMultiplier = 0.5f;
 
         if (CONFIG.itemFilterEnabled) {
-            ITEM_FILTER = Registry.register(Registry.ITEM, new Identifier(MOD_ID, "item_filter"), new ItemFilterItem());
+            ITEM_FILTER = Registry.register(Registries.ITEM, new Identifier(MOD_ID, "item_filter"), new ItemFilterItem());
 
             ServerPlayNetworking.registerGlobalReceiver(new Identifier(MOD_ID, "filter_mode_request"), (server, player, handler, buf, responseSender) -> {
                 final boolean newMode = buf.readBoolean();

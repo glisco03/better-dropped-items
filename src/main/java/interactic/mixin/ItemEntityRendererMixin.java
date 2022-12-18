@@ -19,9 +19,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.random.Random;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -78,9 +78,9 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
         final var transform = bakedModel.getTransformation().ground;
 
-        final float scaleX = bakedModel.getTransformation().ground.scale.getX();
-        final float scaleY = bakedModel.getTransformation().ground.scale.getY();
-        final float scaleZ = bakedModel.getTransformation().ground.scale.getZ();
+        final float scaleX = bakedModel.getTransformation().ground.scale.x;
+        final float scaleY = bakedModel.getTransformation().ground.scale.y;
+        final float scaleZ = bakedModel.getTransformation().ground.scale.z;
 
         // Calculate the distance the model's center is from the item entity's center using the block outline shape
         final double blockHeight = !treatAsDepthModel ? 0 : ((BlockItem) item).getBlock().getOutlineShape(((BlockItem) item).getBlock().getDefaultState(), entity.world, entity.getBlockPos(), ShapeContext.absent()).getMax(Direction.Axis.Y);
@@ -103,7 +103,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         if (treatAsDepthModel && !isFlatBlock) matrices.translate(0, -.1, 0);
 
         // Rotate the item by its yaw to get some randomness for the spinning axis
-        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(entity.getYaw()));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(entity.getYaw()));
 
         // Calculate rotation based on velocity or get the one the item had
         // before it hit the ground
@@ -135,13 +135,13 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         if (treatAsDepthModel) matrices.translate(0, -distanceToCenter, 0);
 
         // Spin the item and store the value inside it should it hit the ground next tick
-        matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion((float) (angle + (isFlatBlock ? 0 : HALF_PI))));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotation((float) (angle + (isFlatBlock ? 0 : HALF_PI))));
         rotator.setRotation(angle);
 
         // If the block is chonky, rotate it randomly
         if (treatAsDepthModel && !isFlatBlock && !InteracticInit.getConfig().blocksLayFlat) {
-            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(this.random.nextFloat() * 45));
-            matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(this.random.nextFloat() * 45));
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(this.random.nextFloat() * 45));
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(this.random.nextFloat() * 45));
         }
 
         // Undo the translation from before
@@ -172,13 +172,13 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
                     matrices.translate(x, y, z);
                 } else {
                     matrices.translate(0, 0.125f, 0.0D);
-                    matrices.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion((this.random.nextFloat() - 0.5f)));
+                    matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((this.random.nextFloat() - 0.5f)));
                     matrices.translate(0, -0.125f, 0.0D);
                 }
             }
 
             // Only apply the scale and rotation part of the model transform to avoid weird issues with alignment and rotation
-            matrices.multiply(new Quaternion(transform.rotation.getX(), transform.rotation.getY(), transform.rotation.getZ(), true));
+            matrices.multiply(new Quaternionf().rotateXYZ(transform.rotation.x, transform.rotation.y, transform.rotation.z));
             matrices.scale(scaleX, scaleY, scaleZ);
 
             this.itemRenderer.renderItem(itemStack, ModelTransformation.Mode.NONE, false, matrices, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV, bakedModel);
