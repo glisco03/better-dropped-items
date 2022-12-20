@@ -36,7 +36,7 @@ public class InGameHudMixin {
 
         if (item == null) return;
 
-        List<Text> tooltip = InteracticInit.getConfig().renderFullTooltip ? item.getStack().getTooltip(null, TooltipContext.Default.BASIC) : Collections.singletonList(item.getStack().getName());
+        List<Text> tooltip = InteracticInit.getConfig().renderFullTooltip ? item.getStack().getTooltip(client.player, TooltipContext.Default.BASIC) : Collections.singletonList(item.getStack().getName());
         for (int i = 0, tooltipSize = tooltip.size(); i < tooltipSize; i++) {
             final var text = tooltip.get(i);
             client.textRenderer.drawWithShadow(matrices, text, this.scaledWidth / 2 - client.textRenderer.getWidth(text) / 2, this.scaledHeight / 2 + 15 + i * 10, 0xFFFFFF);
