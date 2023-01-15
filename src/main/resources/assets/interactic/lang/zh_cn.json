@@ -1,0 +1,27 @@
+{
+  "item.interactic.item_filter": "物品过滤器",
+  "death.attack.thrown_item": "%1$s被%2$s用%3$s砸得头昏脑胀",
+  "death.attack.thrown_item.sword": "%1$s被%2$s使用%3$s正义审判了",
+  "death.attack.thrown_item.axe": "%2$s用%3$s给%1$s开了眼界",
+  "death.attack.thrown_item.shovel": "%1$s未能抗住%2$s的%3$s攻击",
+  "death.attack.thrown_item.pickaxe": "%1$s被%2$s用%3$s砸了个粉碎",
+  "death.attack.thrown_item.hoe": "%2$s用%3$s收下了%1$s的性命",
+
+  "text.autoconfig.interactic.title": "交互模组配置",
+  "text.autoconfig.interactic.category.global": "全局设置",
+  "text.autoconfig.interactic.category.client": "客户端设置",
+
+  "key.interactic.pickup_item": "[交互] 拾取物品",
+
+  "text.autoconfig.interactic.option.clientOnlyMode": "客户端模式",
+  "text.autoconfig.interactic.option.rightClickPickup": "右键拾取",
+  "text.autoconfig.interactic.option.itemFilterEnabled": "物品过滤器",
+  "text.autoconfig.interactic.option.autoPickup": "自动拾取",
+  "text.autoconfig.interactic.option.fancyItemRendering": "高质量掉落物渲染",
+  "text.autoconfig.interactic.option.renderItemTooltips": "显示物品提示",
+  "text.autoconfig.interactic.option.renderFullTooltip": "完全物品提示展示",
+  "text.autoconfig.interactic.option.itemThrowing": "物品投掷",
+  "text.autoconfig.interactic.option.itemsActAsProjectiles": "投掷物视作弹射物",
+  "text.autoconfig.interactic.option.swingArm": "丢弃物品时挥臂",
+  "text.autoconfig.interactic.option.blocksLayFlat": "扁平化方块掉落物"
+}
