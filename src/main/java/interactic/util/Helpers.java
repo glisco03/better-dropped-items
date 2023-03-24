@@ -26,7 +26,7 @@ public class Helpers {
 
         if (result != null) {
             var distance = camera.getPos().distanceTo(result.getPos()) - .3;
-            if (camera.raycast(distance, 1f, false) instanceof BlockHitResult blockResult){
+            if (camera.raycast(distance, 1f, false) instanceof BlockHitResult blockResult) {
                 if (!camera.world.getBlockState(blockResult.getBlockPos()).getCollisionShape(camera.world, blockResult.getBlockPos()).isEmpty()) {
                     return null;
                 }
@@ -39,8 +39,8 @@ public class Helpers {
     public static boolean canPlayerPickUpItem(PlayerEntity player, ItemEntity item) {
         if (player.isSneaking()) return true;
 
-        if (!InteracticInit.getConfig().autoPickup && !item.getScoreboardTags().contains("interactic.ignore_auto_pickup_rule")) return false;
-        if (!InteracticInit.getConfig().itemFilterEnabled) return true;
+        if (!InteracticInit.getConfig().autoPickup() && !item.getCommandTags().contains("interactic.ignore_auto_pickup_rule")) return false;
+        if (!InteracticInit.getConfig().itemFilterEnabled()) return true;
 
         var filterOptional = ((PlayerInventoryAccessor) player.getInventory()).getCombinedInventory().stream().flatMap(Collection::stream).filter(itemStack -> itemStack.isOf(InteracticInit.getItemFilter())).findFirst();
         if (filterOptional.isEmpty()) return true;

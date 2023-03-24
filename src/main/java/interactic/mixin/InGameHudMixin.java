@@ -29,14 +29,14 @@ public class InGameHudMixin {
     @SuppressWarnings("IntegerDivisionInFloatingPointContext")
     @Inject(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;drawTexture(Lnet/minecraft/client/util/math/MatrixStack;IIIIII)V", ordinal = 0))
     private void renderItemTooltip(MatrixStack matrices, CallbackInfo ci) {
-        if (!InteracticInit.getConfig().renderItemTooltips) return;
+        if (!InteracticInit.getConfig().renderItemTooltips()) return;
 
         final var client = MinecraftClient.getInstance();
         final var item = Helpers.raycastItem(client.getCameraEntity(), 5);
 
         if (item == null) return;
 
-        List<Text> tooltip = InteracticInit.getConfig().renderFullTooltip ? item.getStack().getTooltip(client.player, TooltipContext.Default.BASIC) : Collections.singletonList(item.getStack().getName());
+        List<Text> tooltip = InteracticInit.getConfig().renderFullTooltip() ? item.getStack().getTooltip(client.player, TooltipContext.Default.BASIC) : Collections.singletonList(item.getStack().getName());
         for (int i = 0, tooltipSize = tooltip.size(); i < tooltipSize; i++) {
             final var text = tooltip.get(i);
             client.textRenderer.drawWithShadow(matrices, text, this.scaledWidth / 2 - client.textRenderer.getWidth(text) / 2, this.scaledHeight / 2 + 15 + i * 10, 0xFFFFFF);

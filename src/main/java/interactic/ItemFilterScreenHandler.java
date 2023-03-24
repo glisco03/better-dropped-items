@@ -85,8 +85,9 @@ public class ItemFilterScreenHandler extends ScreenHandler {
         return itemStack;
     }
 
-    public void close(PlayerEntity playerEntity) {
-        super.close(playerEntity);
+    @Override
+    public void onClosed(PlayerEntity playerEntity) {
+        super.onClosed(playerEntity);
         this.inventory.onClose(playerEntity);
     }
 

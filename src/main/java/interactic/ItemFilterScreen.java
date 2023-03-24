@@ -73,10 +73,10 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
     protected void drawBackground(MatrixStack matrices, float delta, int mouseX, int mouseY) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
-        this.drawTexture(matrices, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
+        drawTexture(matrices, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
 
         if (!blockMode) {
-            this.drawTexture(matrices, this.x + 7, this.y + 19, 0, 142, 162, 18);
+            drawTexture(matrices, this.x + 7, this.y + 19, 0, 142, 162, 18);
         }
     }
 }

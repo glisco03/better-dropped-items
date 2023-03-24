@@ -9,7 +9,6 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,8 +18,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.UUID;
-
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin extends Entity implements InteracticItemExtensions {
 
@@ -28,11 +25,11 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
     public abstract ItemStack getStack();
 
     @Shadow
-    @Nullable
-    public abstract UUID getThrower();
+    private int itemAge;
 
     @Shadow
-    private int itemAge;
+    @Nullable
+    public abstract Entity getOwner();
 
     @Unique
     private float rotation = -1;
@@ -75,7 +72,7 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void dealThrowingDamage(CallbackInfo ci) {
-        if (!InteracticInit.getConfig().itemsActAsProjectiles) return;
+        if (!InteracticInit.getConfig().itemsActAsProjectiles()) return;
         if (itemAge < 2) return;
 
         if (world.isClient) return;
@@ -94,7 +91,7 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
         if (entities.size() < 1) return;
 
         final var target = entities.get(0);
-        final var damageSource = new ItemDamageSource((ItemEntity) (Object) this, ((ServerWorld) world).getEntity(this.getThrower()));
+        final var damageSource = new ItemDamageSource((ItemEntity) (Object) this, this.getOwner());
 
         if (target.hurtTime != 0 || target.isInvulnerableTo(damageSource)) return;
 

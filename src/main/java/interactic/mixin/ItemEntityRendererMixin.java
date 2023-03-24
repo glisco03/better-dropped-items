@@ -11,7 +11,7 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.ItemEntityRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.BlockItem;
@@ -58,7 +58,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
     @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/entity/ItemEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", cancellable = true)
     private void render(ItemEntity entity, float f, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo callback) {
-        if (!InteracticInit.getConfig().fancyItemRendering) return;
+        if (!InteracticInit.getConfig().fancyItemRendering()) return;
 
         ItemStack itemStack = entity.getStack();
 
@@ -139,7 +139,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         rotator.setRotation(angle);
 
         // If the block is chonky, rotate it randomly
-        if (treatAsDepthModel && !isFlatBlock && !InteracticInit.getConfig().blocksLayFlat) {
+        if (treatAsDepthModel && !isFlatBlock && !InteracticInit.getConfig().blocksLayFlat()) {
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(this.random.nextFloat() * 45));
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(this.random.nextFloat() * 45));
         }
@@ -181,7 +181,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
             matrices.multiply(new Quaternionf().rotateXYZ(transform.rotation.x, transform.rotation.y, transform.rotation.z));
             matrices.scale(scaleX, scaleY, scaleZ);
 
-            this.itemRenderer.renderItem(itemStack, ModelTransformation.Mode.NONE, false, matrices, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV, bakedModel);
+            this.itemRenderer.renderItem(itemStack, ModelTransformationMode.NONE, false, matrices, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV, bakedModel);
 
             matrices.pop();
 

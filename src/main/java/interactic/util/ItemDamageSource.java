@@ -3,22 +3,22 @@ package interactic.util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.ProjectileDamageSource;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.*;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
-public class ItemDamageSource extends ProjectileDamageSource {
+public class ItemDamageSource extends DamageSource {
 
     public ItemDamageSource(ItemEntity projectile, @Nullable Entity attacker) {
-        super("thrown_item", projectile, attacker);
+        super(projectile.world.getDamageSources().thrown(projectile, attacker).getTypeRegistryEntry(), projectile, attacker);
     }
 
     @Override
     public Text getDeathMessage(LivingEntity entity) {
-        Text attackerName = this.getAttacker() == null ? this.source.getDisplayName() : this.getAttacker().getDisplayName();
+        Text attackerName = this.getAttacker() == null ? this.getSource().getDisplayName() : this.getAttacker().getDisplayName();
         ItemStack itemStack = ((ItemEntity) this.getSource()).getStack();
-        String key = "death.attack." + this.name;
+        String key = "death.attack.thrown_item";
         if (itemStack.getItem() instanceof SwordItem) key = key + ".sword";
         if (itemStack.getItem() instanceof AxeItem) key = key + ".axe";
         if (itemStack.getItem() instanceof PickaxeItem) key = key + ".pickaxe";

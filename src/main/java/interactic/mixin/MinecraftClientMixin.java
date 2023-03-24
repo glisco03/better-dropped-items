@@ -53,7 +53,7 @@ public class MinecraftClientMixin {
 
     @Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isRiding()Z", shift = At.Shift.AFTER), cancellable = true)
     private void tryPickupItem(CallbackInfo ci) {
-        if (!InteracticInit.getConfig().rightClickPickup) return;
+        if (!InteracticInit.getConfig().rightClickPickup()) return;
         if (KeyBindingHelper.getBoundKeyOf(InteracticClientInit.PICKUP_ITEM) != InputUtil.UNKNOWN_KEY) return;
 
         if (Helpers.raycastItem(cameraEntity, interactionManager.getReachDistance()) == null) return;
@@ -64,7 +64,7 @@ public class MinecraftClientMixin {
 
     @Redirect(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;dropSelectedItem(Z)Z"))
     private boolean handleDropPower(ClientPlayerEntity clientPlayerEntity, boolean dropEntireStack) {
-        if (!InteracticInit.getConfig().itemThrowing) return clientPlayerEntity.dropSelectedItem(dropEntireStack);
+        if (!InteracticInit.getConfig().itemThrowing()) return clientPlayerEntity.dropSelectedItem(dropEntireStack);
 
         if (!Screen.hasShiftDown()) {
             dropPower += 0.075;
@@ -79,13 +79,13 @@ public class MinecraftClientMixin {
 
     @Redirect(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;swingHand(Lnet/minecraft/util/Hand;)V"))
     private void dontSwingArms(ClientPlayerEntity player, Hand hand) {
-        if (!InteracticInit.getConfig().swingArm) return;
+        if (!InteracticInit.getConfig().swingArm()) return;
         player.swingHand(hand);
     }
 
     @Inject(method = "handleInputEvents", at = @At("RETURN"))
     private void afterDrop(CallbackInfo ci) {
-        if (!InteracticInit.getConfig().itemThrowing) return;
+        if (!InteracticInit.getConfig().itemThrowing()) return;
 
         if (dropPower > 0.9f && !options.dropKey.isPressed()) {
             final var dropAll = Screen.hasControlDown();
@@ -98,10 +98,10 @@ public class MinecraftClientMixin {
                 ClientPlayNetworking.send(new Identifier(InteracticInit.MOD_ID, "drop_with_power"), buffer);
 
                 if (!this.player.getInventory().removeStack(this.player.getInventory().selectedSlot, dropAll && !this.player.getInventory().getMainHandStack().isEmpty() ? this.player.getInventory().getMainHandStack().getCount() : 1).isEmpty()) {
-                    if (InteracticInit.getConfig().swingArm) this.player.swingHand(Hand.MAIN_HAND);
+                    if (InteracticInit.getConfig().swingArm()) this.player.swingHand(Hand.MAIN_HAND);
                 }
             } else if (this.player.dropSelectedItem(dropAll)) {
-                if (InteracticInit.getConfig().swingArm) this.player.swingHand(Hand.MAIN_HAND);
+                if (InteracticInit.getConfig().swingArm()) this.player.swingHand(Hand.MAIN_HAND);
             }
 
             dropPower = 0.9f;
