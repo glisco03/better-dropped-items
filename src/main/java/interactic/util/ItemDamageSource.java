@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class ItemDamageSource extends DamageSource {
 
     public ItemDamageSource(ItemEntity projectile, @Nullable Entity attacker) {
-        super(projectile.world.getDamageSources().thrown(projectile, attacker).getTypeRegistryEntry(), projectile, attacker);
+        super(projectile.getWorld().getDamageSources().thrown(projectile, attacker).getTypeRegistryEntry(), projectile, attacker);
     }
 
     @Override

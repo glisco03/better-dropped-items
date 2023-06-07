@@ -1,12 +1,11 @@
 package interactic;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -46,37 +45,35 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
 
     public ItemFilterScreen(ItemFilterScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
-        this.passEvents = false;
         this.backgroundHeight = 142;
         this.playerInventoryTitleY = 69420;
     }
 
-    @SuppressWarnings({"IntegerDivisionInFloatingPointContext", "ConstantConditions"})
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices);
-        super.render(matrices, mouseX, mouseY, delta);
+    @SuppressWarnings({"ConstantConditions"})
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
+        super.render(context, mouseX, mouseY, delta);
 
-        this.client.textRenderer.draw(matrices, "Mode", this.x + 8, this.y + 44, 0x404040);
+        context.drawText(this.client.textRenderer, "Mode", this.x + 8, this.y + 44, 0x404040, false);
 
         int blockWidth = textRenderer.getWidth("Block");
         int allowWidth = textRenderer.getWidth("Allow");
 
-        client.textRenderer.drawWithShadow(matrices, "Block", this.x + 73 - blockWidth / 2, this.y + 44, 0xFFFFFF);
-        client.textRenderer.drawWithShadow(matrices, "Allow", this.x + 138 - allowWidth / 2, this.y + 44, 0xFFFFFF);
+        context.drawText(client.textRenderer, "Block", this.x + 73 - blockWidth / 2, this.y + 44, 0xFFFFFF, true);
+        context.drawText(client.textRenderer, "Allow", this.x + 138 - allowWidth / 2, this.y + 44, 0xFFFFFF, true);
 
-        this.drawMouseoverTooltip(matrices, mouseX, mouseY);
+        this.drawMouseoverTooltip(context, mouseX, mouseY);
 
         this.blockButton.active = !this.blockMode;
         this.allowButton.active = this.blockMode;
     }
 
-    protected void drawBackground(MatrixStack matrices, float delta, int mouseX, int mouseY) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, TEXTURE);
-        drawTexture(matrices, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
+    @Override
+    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
+        context.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
 
         if (!blockMode) {
-            drawTexture(matrices, this.x + 7, this.y + 19, 0, 142, 162, 18);
+            context.drawTexture(TEXTURE, this.x + 7, this.y + 19, 0, 142, 162, 18);
         }
     }
 }

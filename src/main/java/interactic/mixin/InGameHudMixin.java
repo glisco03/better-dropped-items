@@ -1,12 +1,11 @@
 package interactic.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import interactic.InteracticInit;
 import interactic.util.Helpers;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.item.TooltipContext;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,9 +25,8 @@ public class InGameHudMixin {
     @Shadow
     private int scaledHeight;
 
-    @SuppressWarnings("IntegerDivisionInFloatingPointContext")
-    @Inject(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;drawTexture(Lnet/minecraft/client/util/math/MatrixStack;IIIIII)V", ordinal = 0))
-    private void renderItemTooltip(MatrixStack matrices, CallbackInfo ci) {
+    @Inject(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIIIII)V", ordinal = 0))
+    private void renderItemTooltip(DrawContext context, CallbackInfo ci) {
         if (!InteracticInit.getConfig().renderItemTooltips()) return;
 
         final var client = MinecraftClient.getInstance();
@@ -39,10 +37,8 @@ public class InGameHudMixin {
         List<Text> tooltip = InteracticInit.getConfig().renderFullTooltip() ? item.getStack().getTooltip(client.player, TooltipContext.Default.BASIC) : Collections.singletonList(item.getStack().getName());
         for (int i = 0, tooltipSize = tooltip.size(); i < tooltipSize; i++) {
             final var text = tooltip.get(i);
-            client.textRenderer.drawWithShadow(matrices, text, this.scaledWidth / 2 - client.textRenderer.getWidth(text) / 2, this.scaledHeight / 2 + 15 + i * 10, 0xFFFFFF);
+            context.drawText(client.textRenderer, text, this.scaledWidth / 2 - client.textRenderer.getWidth(text) / 2, this.scaledHeight / 2 + 15 + i * 10, 0xFFFFFF, true);
         }
-
-        RenderSystem.setShaderTexture(0, InGameHud.GUI_ICONS_TEXTURE);
     }
 
 }

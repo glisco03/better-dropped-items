@@ -75,6 +75,7 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
         if (!InteracticInit.getConfig().itemsActAsProjectiles()) return;
         if (itemAge < 2) return;
 
+        var world = this.getWorld();
         if (world.isClient) return;
 
         if (this.isOnGround()) this.wasThrown = false;

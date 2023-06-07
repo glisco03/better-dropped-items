@@ -69,7 +69,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
         matrices.push();
 
-        BakedModel bakedModel = this.itemRenderer.getModel(itemStack, entity.world, null, seed);
+        BakedModel bakedModel = this.itemRenderer.getModel(itemStack, entity.getWorld(), null, seed);
         final int renderCount = this.getRenderedAmount(itemStack);
         InteracticItemExtensions rotator = (InteracticItemExtensions) entity;
 
@@ -83,7 +83,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         final float scaleZ = bakedModel.getTransformation().ground.scale.z;
 
         // Calculate the distance the model's center is from the item entity's center using the block outline shape
-        final double blockHeight = !treatAsDepthModel ? 0 : ((BlockItem) item).getBlock().getOutlineShape(((BlockItem) item).getBlock().getDefaultState(), entity.world, entity.getBlockPos(), ShapeContext.absent()).getMax(Direction.Axis.Y);
+        final double blockHeight = !treatAsDepthModel ? 0 : ((BlockItem) item).getBlock().getOutlineShape(((BlockItem) item).getBlock().getDefaultState(), entity.getWorld(), entity.getBlockPos(), ShapeContext.absent()).getMax(Direction.Axis.Y);
         final boolean isFlatBlock = treatAsDepthModel && blockHeight <= 0.75;
         final double distanceToCenter = (0.5 - blockHeight + blockHeight / 2) * 0.25;
 

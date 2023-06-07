@@ -27,7 +27,7 @@ public class Helpers {
         if (result != null) {
             var distance = camera.getPos().distanceTo(result.getPos()) - .3;
             if (camera.raycast(distance, 1f, false) instanceof BlockHitResult blockResult) {
-                if (!camera.world.getBlockState(blockResult.getBlockPos()).getCollisionShape(camera.world, blockResult.getBlockPos()).isEmpty()) {
+                if (!camera.getWorld().getBlockState(blockResult.getBlockPos()).getCollisionShape(camera.getWorld(), blockResult.getBlockPos()).isEmpty()) {
                     return null;
                 }
             }
