@@ -1,0 +1,27 @@
+{
+  "item.interactic.item_filter": "Фільтр прадметаў",
+  "death.attack.thrown_item": "%2$s закідаў %1$s да смерці з дапамогай %3$s",
+  "death.attack.thrown_item.sword": "%2$s рассёк %1$s з дапамогай %3$s",
+  "death.attack.thrown_item.axe": "%2$s зрубіў %1$s з дапамогай %3$s",
+  "death.attack.thrown_item.shovel": "%1$s забіў %2$s з дапамогай %3$s",
+  "death.attack.thrown_item.pickaxe": "%2$s зарубіў %1$s з дапамогай %3$s",
+  "death.attack.thrown_item.hoe": "%2$s запалоў %1$s да смерці з дапамогай %3$s",
+
+  "key.interactic.pickup_item": "[Interactic] Падабраць прадмет",
+
+  "text.config.interactic.title": "Параметры Interactic",
+  "text.config.interactic.section.global": "Агульныя налады",
+  "text.config.interactic.section.client": "Налады з боку гульца",
+
+  "text.config.interactic.option.clientOnlyMode": "Рэжым Толькі Гулец",
+  "text.config.interactic.option.rightClickPickup": "Падбіранне па ПКМ",
+  "text.config.interactic.option.itemFilterEnabled": "Фільтр прадметаў",
+  "text.config.interactic.option.autoPickup": "Аўтаматычнае падбіранне",
+  "text.config.interactic.option.fancyItemRendering": "Прыгожае адлюстраванне прадметаў",
+  "text.config.interactic.option.renderItemTooltips": "Паказваць поўныя падказкі для прадметаў",
+  "text.config.interactic.option.renderFullTooltip": "Поўныя падказкі",
+  "text.config.interactic.option.itemThrowing": "Кіданне прадметаў",
+  "text.config.interactic.option.itemsActAsProjectiles": "Прадметы паводзяць сабе як снарады",
+  "text.config.interactic.option.swingArm": "Размахвацца перад браском",
+  "text.config.interactic.option.blocksLayFlat": "Блокі ляжаць плоска"
+}
