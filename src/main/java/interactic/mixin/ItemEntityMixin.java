@@ -89,7 +89,7 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
                 .mapToDouble(EntityAttributeModifier::getValue).sum() : 2;
 
         final var entities = world.getNonSpectatingEntities(LivingEntity.class, this.getBoundingBox().expand(0.15));
-        if (entities.size() < 1) return;
+        if (entities.isEmpty()) return;
 
         final var target = entities.get(0);
         final var damageSource = new ItemDamageSource((ItemEntity) (Object) this, this.getOwner());

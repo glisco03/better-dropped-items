@@ -80,11 +80,11 @@ public class ItemFilterItem extends Item {
     public static class FilterInventory implements Inventory {
 
         public final ItemStack filter;
-        private final DefaultedList<ItemStack> items = DefaultedList.ofSize(9, ItemStack.EMPTY);
+        private final DefaultedList<ItemStack> items = DefaultedList.ofSize(ItemFilterScreenHandler.SLOT_COUNT, ItemStack.EMPTY);
 
         public FilterInventory(ItemStack filter) {
             this.filter = filter;
-            Inventories.readNbt(filter.getOrCreateNbt(), items);
+            Inventories.readNbt(filter.getOrCreateNbt(), this.items);
         }
 
         public void setFilterMode(boolean mode) {
@@ -97,41 +97,41 @@ public class ItemFilterItem extends Item {
 
         @Override
         public int size() {
-            return 9;
+            return ItemFilterScreenHandler.SLOT_COUNT;
         }
 
         @Override
         public boolean isEmpty() {
-            return items.stream().allMatch(ItemStack::isEmpty);
+            return this.items.stream().allMatch(ItemStack::isEmpty);
         }
 
         @Override
         public ItemStack getStack(int slot) {
-            return items.get(slot);
+            return this.items.get(slot);
         }
 
         @Override
         public ItemStack removeStack(int slot, int amount) {
-            var stack = items.get(slot).copy();
-            items.set(slot, ItemStack.EMPTY);
+            var stack = this.items.get(slot).copy();
+            this.items.set(slot, ItemStack.EMPTY);
             return stack;
         }
 
         @Override
         public ItemStack removeStack(int slot) {
-            var stack = items.get(slot).copy();
-            items.set(slot, ItemStack.EMPTY);
+            var stack = this.items.get(slot).copy();
+            this.items.set(slot, ItemStack.EMPTY);
             return stack;
         }
 
         @Override
         public void setStack(int slot, ItemStack stack) {
-            items.set(slot, stack);
+            this.items.set(slot, stack);
         }
 
         @Override
         public void markDirty() {
-            Inventories.writeNbt(filter.getOrCreateNbt(), items);
+            Inventories.writeNbt(filter.getOrCreateNbt(), this.items);
         }
 
         @Override
@@ -141,8 +141,8 @@ public class ItemFilterItem extends Item {
 
         @Override
         public void clear() {
-            for (int i = 0; i < items.size(); i++) {
-                items.set(i, ItemStack.EMPTY);
+            for (int i = 0; i < this.items.size(); i++) {
+                this.items.set(i, ItemStack.EMPTY);
             }
         }
     }

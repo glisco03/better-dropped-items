@@ -1,5 +1,6 @@
 package interactic;
 
+import io.wispforest.owo.client.screens.SlotGenerator;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,7 +15,7 @@ import net.minecraft.util.Identifier;
 
 public class ItemFilterScreenHandler extends ScreenHandler {
 
-    public static final int SLOT_COUNT = 9;
+    public static final int SLOT_COUNT = 27;
     private final Inventory inventory;
     private final PlayerEntity player;
 
@@ -30,21 +31,12 @@ public class ItemFilterScreenHandler extends ScreenHandler {
         this.player = playerInventory.player;
         inventory.onOpen(player);
 
-        int m;
-        for (m = 0; m < SLOT_COUNT; ++m) {
-            this.addSlot(new GhostSlot(inventory, m, 8 + m * 18, 20));
-        }
-
-        for (m = 0; m < 3; ++m) {
-            for (int l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + m * 9 + 9, 8 + l * 18, m * 18 + 60));
-            }
-        }
-
-        for (m = 0; m < 9; ++m) {
-            this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 118));
-        }
-
+        SlotGenerator.begin(this::addSlot, 8, 20)
+                .slotFactory(GhostSlot::new)
+                .grid(inventory, 0, 9, 3)
+                .defaultSlotFactory()
+                .moveTo(8, 96)
+                .playerInventory(playerInventory);
     }
 
     public void setFilterMode(boolean mode) {

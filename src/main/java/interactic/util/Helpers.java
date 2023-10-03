@@ -7,13 +7,15 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Helpers {
 
@@ -37,20 +39,41 @@ public class Helpers {
     }
 
     public static boolean canPlayerPickUpItem(PlayerEntity player, ItemEntity item) {
-        if (player.isSneaking()) return true;
+        if (!InteracticInit.getConfig().autoPickup() && player.isSneaking() && !item.getCommandTags().contains("interactic.ignore_auto_pickup_rule")) {
+            return true;
+        }
 
-        if (!InteracticInit.getConfig().autoPickup() && !item.getCommandTags().contains("interactic.ignore_auto_pickup_rule")) return false;
         if (!InteracticInit.getConfig().itemFilterEnabled()) return true;
+        var filters = ((PlayerInventoryAccessor) player.getInventory()).getCombinedInventory().stream()
+                .flatMap(Collection::stream)
+                .filter(stack -> stack.isOf(InteracticInit.getItemFilter()))
+                .filter(stack -> stack.hasNbt() && stack.getNbt().getBoolean("Enabled"))
+                .map(stack -> new FilterEntry(stack, ItemFilterItem.getItemsInFilter(stack), stack.getNbt().getBoolean("BlockMode")))
+                .toList();
 
-        var filterOptional = ((PlayerInventoryAccessor) player.getInventory()).getCombinedInventory().stream().flatMap(Collection::stream).filter(itemStack -> itemStack.isOf(InteracticInit.getItemFilter())).findFirst();
-        if (filterOptional.isEmpty()) return true;
+        if (filters.isEmpty()) return true;
 
-        final ItemStack filterStack = filterOptional.get();
-        final NbtCompound filterNbt = filterStack.getOrCreateNbt();
+        var allowed = filters.stream().allMatch(FilterEntry::blockMode);
+        for (var entry : filters) {
+            if (entry.blockMode) continue;
 
-        if (!filterNbt.getBoolean("Enabled")) return true;
+            if (entry.filterItems.contains(item.getStack().getItem())) {
+                return true;
+            }
+        }
 
-        return filterNbt.getBoolean("BlockMode") != ItemFilterItem.getItemsInFilter(filterStack).contains(item.getStack().getItem());
+        if (!allowed) return false;
+
+        for (var entry : filters) {
+            if (!entry.blockMode) continue;
+
+            if (entry.filterItems.contains(item.getStack().getItem())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
+    private record FilterEntry(ItemStack filter, List<Item> filterItems, boolean blockMode) {}
 }

@@ -19,22 +19,19 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
     private ButtonWidget blockButton = null;
     private ButtonWidget allowButton = null;
 
+    public ItemFilterScreen(ItemFilterScreenHandler handler, PlayerInventory inventory, Text title) {
+        super(handler, inventory, title);
+        this.backgroundHeight = 178;
+        this.playerInventoryTitleY = 69420;
+    }
+
     @Override
     protected void init() {
         super.init();
-        titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
+        this.titleX = (this.backgroundWidth - this.textRenderer.getWidth(this.title)) / 2;
 
-        int i = (this.width - this.backgroundWidth) / 2;
-        int j = (this.height - this.backgroundHeight) / 2;
-
-        this.addDrawableChild(this.blockButton = new TexturedButtonWidget(i + 43, j + 42, 60, 12, 176, 12, 12, TEXTURE, button -> {
-            sendModeRequest(true);
-        }));
-
-        this.addDrawableChild(this.allowButton = new TexturedButtonWidget(i + 108, j + 42, 60, 12, 176, 12, 12, TEXTURE, button -> {
-            sendModeRequest(false);
-        }));
-
+        this.addDrawableChild(this.blockButton = ButtonWidget.builder(Text.literal("Block"), button -> sendModeRequest(true)).dimensions(this.x + 43, this.y + 78, 60, 12).build());
+        this.addDrawableChild(this.allowButton = ButtonWidget.builder(Text.literal("Allow"), button -> sendModeRequest(false)).dimensions(this.x + 108, this.y + 78, 60, 12).build());
     }
 
     private static void sendModeRequest(boolean mode) {
@@ -43,24 +40,12 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
         ClientPlayNetworking.send(new Identifier(InteracticInit.MOD_ID, "filter_mode_request"), buf);
     }
 
-    public ItemFilterScreen(ItemFilterScreenHandler handler, PlayerInventory inventory, Text title) {
-        super(handler, inventory, title);
-        this.backgroundHeight = 142;
-        this.playerInventoryTitleY = 69420;
-    }
 
     @SuppressWarnings({"ConstantConditions"})
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
         super.render(context, mouseX, mouseY, delta);
 
-        context.drawText(this.client.textRenderer, "Mode", this.x + 8, this.y + 44, 0x404040, false);
-
-        int blockWidth = textRenderer.getWidth("Block");
-        int allowWidth = textRenderer.getWidth("Allow");
-
-        context.drawText(client.textRenderer, "Block", this.x + 73 - blockWidth / 2, this.y + 44, 0xFFFFFF, true);
-        context.drawText(client.textRenderer, "Allow", this.x + 138 - allowWidth / 2, this.y + 44, 0xFFFFFF, true);
+        context.drawText(this.client.textRenderer, "Mode", this.x + 8, this.y + 80, 0x404040, false);
 
         this.drawMouseoverTooltip(context, mouseX, mouseY);
 
@@ -72,8 +57,8 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
         context.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
 
-        if (!blockMode) {
-            context.drawTexture(TEXTURE, this.x + 7, this.y + 19, 0, 142, 162, 18);
+        if (!this.blockMode) {
+            context.drawTexture(TEXTURE, this.x + 7, this.y + 19, 0, 178, 162, 54);
         }
     }
 }
