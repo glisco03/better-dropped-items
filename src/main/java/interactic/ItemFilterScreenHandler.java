@@ -1,5 +1,6 @@
 package interactic;
 
+import io.wispforest.owo.client.screens.ScreenUtils;
 import io.wispforest.owo.client.screens.SlotGenerator;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -54,27 +55,7 @@ public class ItemFilterScreenHandler extends ScreenHandler {
 
     @Override
     public ItemStack quickMove(PlayerEntity player, int index) {
-        ItemStack itemStack = ItemStack.EMPTY;
-        Slot slot = (Slot) this.slots.get(index);
-        if (slot.hasStack()) {
-            ItemStack itemStack2 = slot.getStack();
-            itemStack = itemStack2.copy();
-            if (index < this.inventory.size()) {
-                if (!this.insertItem(itemStack2, this.inventory.size(), this.slots.size(), true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.insertItem(itemStack2, 0, this.inventory.size(), false)) {
-                return ItemStack.EMPTY;
-            }
-
-            if (itemStack2.isEmpty()) {
-                slot.setStack(ItemStack.EMPTY);
-            } else {
-                slot.markDirty();
-            }
-        }
-
-        return itemStack;
+        return ScreenUtils.handleSlotTransfer(this, index, 0);
     }
 
     @Override
@@ -87,6 +68,11 @@ public class ItemFilterScreenHandler extends ScreenHandler {
 
         public GhostSlot(Inventory inventory, int index, int x, int y) {
             super(inventory, index, x, y);
+        }
+
+        @Override
+        public int getMaxItemCount() {
+            return 1;
         }
 
         @Override

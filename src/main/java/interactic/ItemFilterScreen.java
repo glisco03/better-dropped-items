@@ -40,7 +40,6 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
         ClientPlayNetworking.send(new Identifier(InteracticInit.MOD_ID, "filter_mode_request"), buf);
     }
 
-
     @SuppressWarnings({"ConstantConditions"})
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);

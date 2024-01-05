@@ -4,13 +4,14 @@
   "compatibilityLevel": "JAVA_16",
   "client": [
     "InGameHudMixin",
-    "MinecraftClientMixin",
-    "ItemEntityRendererMixin"
+    "ItemEntityRendererMixin",
+    "MinecraftClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "mixins": [
+    "ItemEntityAccessor",
     "ItemEntityMixin",
     "PlayerEntityMixin",
     "PlayerInventoryAccessor",

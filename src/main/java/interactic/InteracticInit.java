@@ -1,5 +1,6 @@
 package interactic;
 
+import interactic.mixin.ItemEntityAccessor;
 import interactic.util.Helpers;
 import interactic.util.InteracticConfig;
 import interactic.util.InteracticPlayerExtension;
@@ -64,7 +65,9 @@ public class InteracticInit implements ModInitializer {
             ServerPlayNetworking.registerGlobalReceiver(new Identifier(MOD_ID, "pickup"), (server, player, handler, buf, responseSender) -> {
                 server.execute(() -> {
                     final var item = Helpers.raycastItem(player.getCameraEntity(), 6);
-                    if (item == null) return;
+                    if (item == null || ((ItemEntityAccessor) item).interactic$getPickupDelay() == Short.MAX_VALUE) {
+                        return;
+                    }
 
                     if (player.getInventory().insertStack(item.getStack().copy())) {
                         player.sendPickup(item, item.getStack().getCount());

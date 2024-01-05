@@ -67,7 +67,7 @@ public class MinecraftClientMixin {
         if (!InteracticInit.getConfig().itemThrowing()) return clientPlayerEntity.dropSelectedItem(dropEntireStack);
 
         if (!Screen.hasShiftDown()) {
-            dropPower += 0.075;
+            dropPower += 0.075f;
             if (dropPower > 5) dropPower = 5;
             if (dropPower >= 1.5)
                 clientPlayerEntity.sendMessage(Text.of("Power: " + BigDecimal.valueOf(Math.max(dropPower, 1)).setScale(1, RoundingMode.HALF_UP)), true);
