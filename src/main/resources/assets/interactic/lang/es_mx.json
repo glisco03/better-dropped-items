@@ -1,0 +1,27 @@
+{
+  "item.interactic.item_filter": "Filtro de Ítems",
+  "death.attack.thrown_item": "%1$s fue golpeado por %2$s usando %3$s",
+  "death.attack.thrown_item.sword": "%1$s fue ejecutado por %2$s usando %3$s",
+  "death.attack.thrown_item.axe": "%1$s sintió un tiro de habilidad de %2$s realizado usando %3$s",
+  "death.attack.thrown_item.shovel": "%1$s fue golpeado por %2$s usando %3$s",
+  "death.attack.thrown_item.pickaxe": "%1$s fue perforado por %2$s usando %3$s",
+  "death.attack.thrown_item.hoe": "%1$s fue segado por %2$s usando %3$s",
+
+  "key.interactic.pickup_item": "[Interactic] Recoger Ítem",
+
+  "text.config.interactic.title": "Configuración de Interactic",
+  "text.config.interactic.section.global": "Opciones Globales",
+  "text.config.interactic.section.client": "Opciones Solo Cliente",
+
+  "text.config.interactic.option.clientOnlyMode": "Modo Solo Cliente",
+  "text.config.interactic.option.rightClickPickup": "Recoger con Click Derecho",
+  "text.config.interactic.option.itemFilterEnabled": "Filtro de Ítems",
+  "text.config.interactic.option.autoPickup": "Recogida Automática",
+  "text.config.interactic.option.fancyItemRendering": "Representación Elegante de Ítems",
+  "text.config.interactic.option.renderItemTooltips": "Mostrar Consejos de Ítems",
+  "text.config.interactic.option.renderFullTooltip": "Consejos Completos",
+  "text.config.interactic.option.itemThrowing": "Lanzamiento de Ítems",
+  "text.config.interactic.option.itemsActAsProjectiles": "Ítems como proyectiles",
+  "text.config.interactic.option.swingArm": "Mover el brazo al soltar",
+  "text.config.interactic.option.blocksLayFlat": "Bloques en posición plana"
+}
