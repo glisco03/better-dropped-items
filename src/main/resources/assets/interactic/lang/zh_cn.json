@@ -1,0 +1,27 @@
+{
+  "item.interactic.item_filter": "物品过滤器",
+  "death.attack.thrown_item": "%1$s被%2$s用%3$s砸死了",
+  "death.attack.thrown_item.sword": "%1$s被%2$s用%3$s处决了",
+  "death.attack.thrown_item.axe": "%1$s被%2$s用%3$s劈成了两半",
+  "death.attack.thrown_item.shovel": "%1$s被%2$s用%3$s拍扁了",
+  "death.attack.thrown_item.pickaxe": "%1$s被%2$用%3$s凿穿了",
+  "death.attack.thrown_item.hoe": "%1$s被%2$s用%3$s收割了",
+
+  "key.interactic.pickup_item": "[Interactic] 拾取物品",
+
+  "text.config.interactic.title": "Interactic 配置",
+  "text.config.interactic.section.global": "总选项",
+  "text.config.interactic.section.client": "客户端选项",
+
+  "text.config.interactic.option.clientOnlyMode": "仅客户端模式",
+  "text.config.interactic.option.rightClickPickup": "右键拾取",
+  "text.config.interactic.option.itemFilterEnabled": "物品过滤器",
+  "text.config.interactic.option.autoPickup": "自动拾取",
+  "text.config.interactic.option.fancyItemRendering": "华丽物品渲染",
+  "text.config.interactic.option.renderItemTooltips": "渲染物品提示框",
+  "text.config.interactic.option.renderFullTooltip": "完整提示框",
+  "text.config.interactic.option.itemThrowing": "物品丢弃",
+  "text.config.interactic.option.itemsActAsProjectiles": "弹射物形态物品",
+  "text.config.interactic.option.swingArm": "丢弃时晃动手臂",
+  "text.config.interactic.option.blocksLayFlat": "方块平放"
+}
