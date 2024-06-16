@@ -44,7 +44,7 @@ public class RecipeManagerMixin {
     @Inject(method = "apply", at = @At("HEAD"))
     public void injectFilterRecipe(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci) {
         if (InteracticInit.getConfig().itemFilterEnabled()) {
-            map.put(new Identifier(InteracticInit.MOD_ID, "item_filter"), new Gson().fromJson(FILTER_RECIPE, JsonObject.class));
+            map.put(InteracticInit.id("item_filter"), new Gson().fromJson(FILTER_RECIPE, JsonObject.class));
         }
     }
 }

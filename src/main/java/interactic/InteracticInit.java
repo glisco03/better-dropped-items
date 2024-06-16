@@ -3,6 +3,7 @@ package interactic;
 import interactic.mixin.ItemEntityAccessor;
 import interactic.util.Helpers;
 import interactic.util.InteracticConfig;
+import interactic.util.InteracticNetworking;
 import interactic.util.InteracticPlayerExtension;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -27,7 +28,7 @@ public class InteracticInit implements ModInitializer {
     private static float itemRotationSpeedMultiplier = 1f;
 
     public static final ScreenHandlerType<ItemFilterScreenHandler> ITEM_FILTER_SCREEN_HANDLER =
-            Registry.register(Registries.SCREEN_HANDLER, new Identifier(MOD_ID, "item_filter"), new ScreenHandlerType<>(ItemFilterScreenHandler::new, FeatureFlags.DEFAULT_ENABLED_FEATURES));
+            Registry.register(Registries.SCREEN_HANDLER, id("item_filter"), new ScreenHandlerType<>(ItemFilterScreenHandler::new, FeatureFlags.DEFAULT_ENABLED_FEATURES));
 
     @Override
     public void onInitialize() {
@@ -50,45 +51,15 @@ public class InteracticInit implements ModInitializer {
         if (FabricLoader.getInstance().isModLoaded("iris")) itemRotationSpeedMultiplier = 0.5f;
 
         if (CONFIG.itemFilterEnabled()) {
-            ITEM_FILTER = Registry.register(Registries.ITEM, new Identifier(MOD_ID, "item_filter"), new ItemFilterItem());
-
-            ServerPlayNetworking.registerGlobalReceiver(new Identifier(MOD_ID, "filter_mode_request"), (server, player, handler, buf, responseSender) -> {
-                final boolean newMode = buf.readBoolean();
-                server.execute(() -> {
-                    if (!(player.currentScreenHandler instanceof ItemFilterScreenHandler filterHandler)) return;
-                    filterHandler.setFilterMode(newMode);
-                });
-            });
+            ITEM_FILTER = Registry.register(Registries.ITEM, id("item_filter"), new ItemFilterItem());
         }
 
-        if (CONFIG.rightClickPickup()) {
-            ServerPlayNetworking.registerGlobalReceiver(new Identifier(MOD_ID, "pickup"), (server, player, handler, buf, responseSender) -> {
-                server.execute(() -> {
-                    final var item = Helpers.raycastItem(player.getCameraEntity(), 6);
-                    if (item == null || ((ItemEntityAccessor) item).interactic$getPickupDelay() == Short.MAX_VALUE) {
-                        return;
-                    }
-
-                    if (player.getInventory().insertStack(item.getStack().copy())) {
-                        player.sendPickup(item, item.getStack().getCount());
-                        item.discard();
-                    }
-                });
-            });
-        }
-
-        if (CONFIG.itemThrowing()) {
-            ServerPlayNetworking.registerGlobalReceiver(new Identifier(MOD_ID, "drop_with_power"), (server, player, handler, buf, responseSender) -> {
-                final float power = buf.readFloat();
-                final boolean dropAll = buf.readBoolean();
-                server.execute(() -> {
-                    ((InteracticPlayerExtension) player).setDropPower(power);
-                    dropSelected(player, dropAll);
-                });
-            });
-        }
+        InteracticNetworking.init();
     }
 
+    public static Identifier id(String path) {
+        return Identifier.of(MOD_ID, path);
+    }
 
     public static Item getItemFilter() {
         return ITEM_FILTER;
@@ -99,10 +70,6 @@ public class InteracticInit implements ModInitializer {
             if (!CONFIG.clientOnlyMode()) return;
             if (value != defaultValue) setter.accept(defaultValue);
         });
-    }
-
-    private void dropSelected(PlayerEntity player, boolean dropAll) {
-        player.dropItem(player.getInventory().removeStack(player.getInventory().selectedSlot, dropAll && !player.getInventory().getMainHandStack().isEmpty() ? player.getInventory().getMainHandStack().getCount() : 1), false, true);
     }
 
     public static float getItemRotationSpeedMultiplier() {

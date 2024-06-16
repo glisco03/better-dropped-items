@@ -1,31 +1,35 @@
 package interactic;
 
+import com.mojang.serialization.Codec;
+import interactic.util.InteracticNetworking;
+import io.wispforest.endec.Endec;
+import io.wispforest.endec.impl.RecordEndec;
+import io.wispforest.endec.impl.ReflectiveEndecBuilder;
+import io.wispforest.owo.serialization.CodecUtils;
+import io.wispforest.owo.serialization.endec.MinecraftEndecs;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.component.ComponentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class ItemFilterItem extends Item {
 
@@ -35,17 +39,45 @@ public class ItemFilterItem extends Item {
         });
     }
 
+    public static final ComponentType<Boolean> ENABLED = Registry.register(
+            Registries.DATA_COMPONENT_TYPE,
+            InteracticInit.id("item_filter_enabled"),
+            ComponentType.<Boolean>builder()
+                    .codec(Codec.BOOL)
+                    .packetCodec(PacketCodecs.BOOL)
+                    .build()
+    );
+
+    public static final ComponentType<Boolean> BLOCK_MODE = Registry.register(
+            Registries.DATA_COMPONENT_TYPE,
+            InteracticInit.id("item_filter_block_mode"),
+            ComponentType.<Boolean>builder()
+                    .codec(Codec.BOOL)
+                    .packetCodec(PacketCodecs.BOOL)
+                    .build()
+    );
+
+    public static final ComponentType<DefaultedList<ItemStack>> FILTER_SLOTS = Registry.register(
+            Registries.DATA_COMPONENT_TYPE,
+            InteracticInit.id("item_filter_slots"),
+            ComponentType.<DefaultedList<ItemStack>>builder()
+                    .codec(CodecUtils.toCodec(InventoryEntry.INVENTORY_ENDEC))
+                    .packetCodec(CodecUtils.toPacketCodec(InventoryEntry.INVENTORY_ENDEC))
+                    .build()
+    );
+
     public ItemFilterItem() {
-        super(new Settings().maxCount(1));
+        super(new Settings().maxCount(1)
+                .component(ENABLED, true)
+                .component(BLOCK_MODE, true)
+                .component(FILTER_SLOTS, DefaultedList.ofSize(ItemFilterScreenHandler.SLOT_COUNT, ItemStack.EMPTY)));
     }
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         final var playerStack = user.getStackInHand(hand);
         if (user.isSneaking()) {
-            var enabled = playerStack.getOrCreateNbt().getBoolean("Enabled");
-            enabled = !enabled;
-            playerStack.getOrCreateNbt().putBoolean("Enabled", enabled);
+            playerStack.apply(ENABLED, false, enabled -> !enabled);
         } else {
             if (world.isClient) return TypedActionResult.success(playerStack);
             final var inv = new FilterInventory(playerStack);
@@ -61,20 +93,13 @@ public class ItemFilterItem extends Item {
                 }
             };
             user.openHandledScreen(factory);
-            final var buf = PacketByteBufs.create();
-            buf.writeBoolean(inv.getFilterMode());
-            ServerPlayNetworking.send((ServerPlayerEntity) user, new Identifier(InteracticInit.MOD_ID, "set_filter_mode"), buf);
+            InteracticNetworking.CHANNEL.serverHandle(user).send(new SetFilterModePacket(inv.getFilterMode()));
         }
         return TypedActionResult.success(playerStack);
     }
 
     public static List<Item> getItemsInFilter(ItemStack stack) {
-        final var invTag = stack.getOrCreateNbt().getList("Items", NbtElement.COMPOUND_TYPE);
-
-        return invTag.stream()
-                .map(s -> Registries.ITEM.getOrEmpty(Identifier.tryParse(((NbtCompound) s).getString("id"))).orElse(null))
-                .filter(Objects::nonNull)
-                .toList();
+        return stack.getOrDefault(FILTER_SLOTS, DefaultedList.<ItemStack>of()).stream().map(ItemStack::getItem).toList();
     }
 
     public static class FilterInventory implements Inventory {
@@ -84,15 +109,19 @@ public class ItemFilterItem extends Item {
 
         public FilterInventory(ItemStack filter) {
             this.filter = filter;
-            Inventories.readNbt(filter.getOrCreateNbt(), this.items);
+
+            var filterItems = filter.getOrDefault(FILTER_SLOTS, this.items);
+            for (int i = 0; i < filterItems.size(); i++) {
+                this.items.set(i, filterItems.get(i));
+            }
         }
 
         public void setFilterMode(boolean mode) {
-            filter.getOrCreateNbt().putBoolean("BlockMode", mode);
+            this.filter.set(BLOCK_MODE, mode);
         }
 
         public boolean getFilterMode() {
-            return filter.getOrCreateNbt().getBoolean("BlockMode");
+            return this.filter.getOrDefault(BLOCK_MODE, false);
         }
 
         @Override
@@ -131,7 +160,7 @@ public class ItemFilterItem extends Item {
 
         @Override
         public void markDirty() {
-            Inventories.writeNbt(filter.getOrCreateNbt(), this.items);
+            this.filter.set(FILTER_SLOTS, this.items);
         }
 
         @Override
@@ -141,9 +170,29 @@ public class ItemFilterItem extends Item {
 
         @Override
         public void clear() {
-            for (int i = 0; i < this.items.size(); i++) {
-                this.items.set(i, ItemStack.EMPTY);
-            }
+            Collections.fill(this.items, ItemStack.EMPTY);
         }
     }
+
+    public record InventoryEntry(ItemStack stack, int slot) {
+        private static final ReflectiveEndecBuilder BUILDER = new ReflectiveEndecBuilder(MinecraftEndecs::addDefaults);
+
+        public static final Endec<InventoryEntry> ENDEC = RecordEndec.create(BUILDER, InventoryEntry.class);
+        public static final Endec<DefaultedList<ItemStack>> INVENTORY_ENDEC = InventoryEntry.ENDEC.listOf().xmap(
+                entries -> {
+                    var list = DefaultedList.ofSize(ItemFilterScreenHandler.SLOT_COUNT, ItemStack.EMPTY);
+                    entries.forEach(entry -> list.set(entry.slot, entry.stack));
+                    return list;
+                }, stacks -> {
+                    var entries = new ArrayList<InventoryEntry>();
+                    for (int i = 0; i < stacks.size(); i++) {
+                        if (stacks.get(i).isEmpty()) continue;
+                        entries.add(new InventoryEntry(stacks.get(i), i));
+                    }
+                    return entries;
+                }
+        );
+    }
+
+    public record SetFilterModePacket(boolean mode) {}
 }

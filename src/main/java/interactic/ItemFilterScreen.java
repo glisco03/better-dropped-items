@@ -1,5 +1,6 @@
 package interactic;
 
+import interactic.util.InteracticNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.DrawContext;
@@ -12,7 +13,7 @@ import net.minecraft.util.Identifier;
 
 public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
 
-    private static final Identifier TEXTURE = new Identifier(InteracticInit.MOD_ID, "textures/gui/item_filter.png");
+    private static final Identifier TEXTURE = InteracticInit.id("textures/gui/item_filter.png");
 
     public boolean blockMode = true;
 
@@ -35,9 +36,7 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
     }
 
     private static void sendModeRequest(boolean mode) {
-        final var buf = PacketByteBufs.create();
-        buf.writeBoolean(mode);
-        ClientPlayNetworking.send(new Identifier(InteracticInit.MOD_ID, "filter_mode_request"), buf);
+        InteracticNetworking.CHANNEL.clientHandle().send(new InteracticNetworking.FilterModeRequest(mode));
     }
 
     @SuppressWarnings({"ConstantConditions"})

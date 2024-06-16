@@ -47,8 +47,8 @@ public class Helpers {
         var filters = ((PlayerInventoryAccessor) player.getInventory()).getCombinedInventory().stream()
                 .flatMap(Collection::stream)
                 .filter(stack -> stack.isOf(InteracticInit.getItemFilter()))
-                .filter(stack -> stack.hasNbt() && stack.getNbt().getBoolean("Enabled"))
-                .map(stack -> new FilterEntry(stack, ItemFilterItem.getItemsInFilter(stack), stack.getNbt().getBoolean("BlockMode")))
+                .filter(stack -> stack.getOrDefault(ItemFilterItem.ENABLED, false))
+                .map(stack -> new FilterEntry(stack, ItemFilterItem.getItemsInFilter(stack), stack.getOrDefault(ItemFilterItem.BLOCK_MODE, false)))
                 .toList();
 
         if (filters.isEmpty()) return true;

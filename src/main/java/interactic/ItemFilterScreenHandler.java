@@ -1,5 +1,6 @@
 package interactic;
 
+import interactic.util.InteracticNetworking;
 import io.wispforest.owo.client.screens.ScreenUtils;
 import io.wispforest.owo.client.screens.SlotGenerator;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -44,9 +45,7 @@ public class ItemFilterScreenHandler extends ScreenHandler {
         if (!(inventory instanceof ItemFilterItem.FilterInventory filterInventory)) return;
         filterInventory.setFilterMode(mode);
 
-        final var buf = PacketByteBufs.create();
-        buf.writeBoolean(mode);
-        ServerPlayNetworking.send((ServerPlayerEntity) player, new Identifier(InteracticInit.MOD_ID, "set_filter_mode"), buf);
+        InteracticNetworking.CHANNEL.serverHandle(player).send(new ItemFilterItem.SetFilterModePacket(mode));
     }
 
     public boolean canUse(PlayerEntity player) {

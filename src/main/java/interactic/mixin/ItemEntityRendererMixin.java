@@ -45,7 +45,9 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
     private ItemRenderer itemRenderer;
 
     @Shadow
-    protected abstract int getRenderedAmount(ItemStack stack);
+    static int getRenderedAmount(int stackSize) {
+        return 0;
+    }
 
     private ItemEntityRendererMixin(EntityRendererFactory.Context dispatcher) {
         super(dispatcher);
@@ -70,7 +72,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         matrices.push();
 
         BakedModel bakedModel = this.itemRenderer.getModel(itemStack, entity.getWorld(), null, seed);
-        final int renderCount = this.getRenderedAmount(itemStack);
+        final int renderCount = getRenderedAmount(itemStack.getCount());
         InteracticItemExtensions rotator = (InteracticItemExtensions) entity;
 
         final var item = entity.getStack().getItem();
@@ -83,7 +85,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         final float scaleZ = bakedModel.getTransformation().ground.scale.z;
 
         // Calculate the distance the model's center is from the item entity's center using the block outline shape
-        final double blockHeight = !treatAsDepthModel ? 0 : ((BlockItem) item).getBlock().getOutlineShape(((BlockItem) item).getBlock().getDefaultState(), entity.getWorld(), entity.getBlockPos(), ShapeContext.absent()).getMax(Direction.Axis.Y);
+        final double blockHeight = !treatAsDepthModel ? 0 : ((BlockItem) item).getBlock().getDefaultState().getOutlineShape(entity.getWorld(), entity.getBlockPos()).getMax(Direction.Axis.Y);
         final boolean isFlatBlock = treatAsDepthModel && blockHeight <= 0.75;
         final double distanceToCenter = (0.5 - blockHeight + blockHeight / 2) * 0.25;
 
@@ -108,7 +110,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         // Calculate rotation based on velocity or get the one the item had
         // before it hit the ground
         if (rotator.getRotation() == -1) rotator.setRotation((random.nextInt(20) - 10) * 0.15f);
-        float angle = entity.isOnGround() ? rotator.getRotation() : (float) (rotator.getRotation() + ((MathHelper.clamp(entity.getVelocity().y * 0.25, 0.075, 0.3))) * (entity.isSubmergedInWater() ? 0.25f : 1) * (MinecraftClient.getInstance().getLastFrameDuration() * 5) * InteracticInit.getItemRotationSpeedMultiplier());
+        float angle = entity.isOnGround() ? rotator.getRotation() : (float) (rotator.getRotation() + ((MathHelper.clamp(entity.getVelocity().y * 0.25, 0.075, 0.3))) * (entity.isSubmergedInWater() ? 0.25f : 1) * (MinecraftClient.getInstance().getRenderTickCounter().getLastFrameDuration() * 5) * InteracticInit.getItemRotationSpeedMultiplier());
 
         // Make sure the angle never exceeds two pi
         if (angle >= TWO_PI) angle -= TWO_PI;

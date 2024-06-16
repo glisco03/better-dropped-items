@@ -4,12 +4,19 @@ import interactic.InteracticInit;
 import interactic.util.Helpers;
 import interactic.util.InteracticItemExtensions;
 import interactic.util.ItemDamageSource;
+import net.minecraft.component.ComponentType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.mutable.MutableDouble;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -81,12 +88,17 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
         if (this.isOnGround()) this.wasThrown = false;
         if (!this.wasThrown) return;
 
-        final var hasDamageModifiers = this.getStack().getAttributeModifiers(EquipmentSlot.MAINHAND).containsKey(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+        final var hasDamageModifiers = this.getStack().getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT)
+                .modifiers().stream().anyMatch(entry -> entry.attribute().value() == EntityAttributes.GENERIC_ATTACK_DAMAGE);
         if (!(this.wasFullPower || hasDamageModifiers)) return;
 
-        final double damage = hasDamageModifiers ? this.getStack().getAttributeModifiers(EquipmentSlot.MAINHAND).get(EntityAttributes.GENERIC_ATTACK_DAMAGE)
-                .stream().filter(modifier -> modifier.getOperation() == EntityAttributeModifier.Operation.ADDITION)
-                .mapToDouble(EntityAttributeModifier::getValue).sum() : 2;
+        var damage = new MutableDouble(2d);
+        if (hasDamageModifiers) {
+            this.getStack().applyAttributeModifiers(EquipmentSlot.MAINHAND, (attribEntry, modifier) -> {
+                if (attribEntry.value() != EntityAttributes.GENERIC_ATTACK_DAMAGE || modifier.operation() != EntityAttributeModifier.Operation.ADD_VALUE) return;
+                damage.add(modifier.value());
+            });
+        }
 
         final var entities = world.getNonSpectatingEntities(LivingEntity.class, this.getBoundingBox().expand(0.15));
         if (entities.isEmpty()) return;
@@ -96,8 +108,8 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
 
         if (target.hurtTime != 0 || target.isInvulnerableTo(damageSource)) return;
 
-        target.damage(damageSource, (float) damage);
-        if (this.getStack().damage(1, world.getRandom(), null)) this.discard();
+        target.damage(damageSource, damage.floatValue());
+        this.getStack().damage(1, (ServerWorld) world, null, item -> this.discard());
     }
 
     @Override
