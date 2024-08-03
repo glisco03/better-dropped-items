@@ -35,7 +35,7 @@ public class RecipeManagerMixin {
                     }
                 },
                 "result": {
-                    "item": "interactic:item_filter",
+                    "id": "interactic:item_filter",
                     "count": 1
                 }
             }
