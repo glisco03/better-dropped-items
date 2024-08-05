@@ -1,0 +1,27 @@
+{
+  "item.interactic.item_filter": "物品過濾器",
+  "death.attack.thrown_item": "%1$s 被 %2$s 使用 %3$s 給揍扁了",
+  "death.attack.thrown_item.sword": "%1$s 被 %2$s 使用 %3$s 給處決了",
+  "death.attack.thrown_item.axe": "%1$s 被 %2$s 使用 %3$s 使出的技巧擊中",
+  "death.attack.thrown_item.shovel": "%1$s 被 %2$s 使用 %3$s 給打中了",
+  "death.attack.thrown_item.pickaxe": "%1$s 被 %2$s 使用 %3$s 給刺穿了",
+  "death.attack.thrown_item.hoe": "%1$s 被 %2$s 使用 %3$s 給收割了",
+
+  "key.interactic.pickup_item": "[Interactic] 撿起物品",
+
+  "text.config.interactic.title": "Interactic 設定",
+  "text.config.interactic.section.global": "全域選項",
+  "text.config.interactic.section.client": "僅限用戶端的選項",
+
+  "text.config.interactic.option.clientOnlyMode": "僅限用戶端模式",
+  "text.config.interactic.option.rightClickPickup": "右鍵撿起",
+  "text.config.interactic.option.itemFilterEnabled": "物品過濾器",
+  "text.config.interactic.option.autoPickup": "自動撿起",
+  "text.config.interactic.option.fancyItemRendering": "精緻的物品繪製",
+  "text.config.interactic.option.renderItemTooltips": "繪製物品工具提示",
+  "text.config.interactic.option.renderFullTooltip": "完整工具提示",
+  "text.config.interactic.option.itemThrowing": "投擲物品",
+  "text.config.interactic.option.itemsActAsProjectiles": "物品作為拋射物",
+  "text.config.interactic.option.swingArm": "丟棄時揮動手臂",
+  "text.config.interactic.option.blocksLayFlat": "方塊平放"
+}
