@@ -2,13 +2,10 @@ package interactic;
 
 import com.mojang.serialization.Codec;
 import interactic.util.InteracticNetworking;
-import io.wispforest.endec.Endec;
-import io.wispforest.endec.impl.RecordEndec;
-import io.wispforest.endec.impl.ReflectiveEndecBuilder;
-import io.wispforest.owo.serialization.CodecUtils;
-import io.wispforest.owo.serialization.endec.MinecraftEndecs;
+import io.wispforest.owo.serialization.Endec;
+import io.wispforest.owo.serialization.endec.RecordEndec;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.component.ComponentType;
+import net.minecraft.component.DataComponentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -39,30 +36,30 @@ public class ItemFilterItem extends Item {
         });
     }
 
-    public static final ComponentType<Boolean> ENABLED = Registry.register(
+    public static final DataComponentType<Boolean> ENABLED = Registry.register(
             Registries.DATA_COMPONENT_TYPE,
             InteracticInit.id("item_filter_enabled"),
-            ComponentType.<Boolean>builder()
+            DataComponentType.<Boolean>builder()
                     .codec(Codec.BOOL)
                     .packetCodec(PacketCodecs.BOOL)
                     .build()
     );
 
-    public static final ComponentType<Boolean> BLOCK_MODE = Registry.register(
+    public static final DataComponentType<Boolean> BLOCK_MODE = Registry.register(
             Registries.DATA_COMPONENT_TYPE,
             InteracticInit.id("item_filter_block_mode"),
-            ComponentType.<Boolean>builder()
+            DataComponentType.<Boolean>builder()
                     .codec(Codec.BOOL)
                     .packetCodec(PacketCodecs.BOOL)
                     .build()
     );
 
-    public static final ComponentType<DefaultedList<ItemStack>> FILTER_SLOTS = Registry.register(
+    public static final DataComponentType<DefaultedList<ItemStack>> FILTER_SLOTS = Registry.register(
             Registries.DATA_COMPONENT_TYPE,
             InteracticInit.id("item_filter_slots"),
-            ComponentType.<DefaultedList<ItemStack>>builder()
-                    .codec(CodecUtils.toCodec(InventoryEntry.INVENTORY_ENDEC))
-                    .packetCodec(CodecUtils.toPacketCodec(InventoryEntry.INVENTORY_ENDEC))
+            DataComponentType.<DefaultedList<ItemStack>>builder()
+                    .codec(InventoryEntry.INVENTORY_ENDEC.codec())
+                    .packetCodec(InventoryEntry.INVENTORY_ENDEC.packetCodec())
                     .build()
     );
 
@@ -175,9 +172,7 @@ public class ItemFilterItem extends Item {
     }
 
     public record InventoryEntry(ItemStack stack, int slot) {
-        private static final ReflectiveEndecBuilder BUILDER = new ReflectiveEndecBuilder(MinecraftEndecs::addDefaults);
-
-        public static final Endec<InventoryEntry> ENDEC = RecordEndec.create(BUILDER, InventoryEntry.class);
+        public static final Endec<InventoryEntry> ENDEC = RecordEndec.create(InventoryEntry.class);
         public static final Endec<DefaultedList<ItemStack>> INVENTORY_ENDEC = InventoryEntry.ENDEC.listOf().xmap(
                 entries -> {
                     var list = DefaultedList.ofSize(ItemFilterScreenHandler.SLOT_COUNT, ItemStack.EMPTY);
