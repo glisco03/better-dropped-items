@@ -22,7 +22,7 @@ public class InteracticClientInit implements ClientModInitializer {
         if (InteracticInit.getConfig().itemFilterEnabled()) {
             ModelPredicateProviderRegistry.register(
                     InteracticInit.getItemFilter(),
-                    Identifier.of("enabled"),
+                    new Identifier("enabled"),
                     (stack, world, entity, seed) -> stack.getOrDefault(ItemFilterItem.ENABLED, false) ? 1 : 0
             );
         }

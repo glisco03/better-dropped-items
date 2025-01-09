@@ -5,9 +5,8 @@ import interactic.util.Helpers;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.item.TooltipType;
 import net.minecraft.item.Item;
-import net.minecraft.item.tooltip.TooltipType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,7 +18,7 @@ import java.util.List;
 public class InGameHudMixin {
 
     @Inject(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lnet/minecraft/util/Identifier;IIII)V", ordinal = 0))
-    private void renderItemTooltip(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+    private void renderItemTooltip(DrawContext context, float tickDelta, CallbackInfo ci) {
         if (!InteracticInit.getConfig().renderItemTooltips()) return;
 
         final var client = MinecraftClient.getInstance();

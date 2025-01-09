@@ -4,7 +4,6 @@ import interactic.InteracticInit;
 import interactic.util.Helpers;
 import interactic.util.InteracticItemExtensions;
 import interactic.util.ItemDamageSource;
-import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.*;
@@ -12,11 +11,9 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableDouble;
-import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -109,7 +106,7 @@ public abstract class ItemEntityMixin extends Entity implements InteracticItemEx
         if (target.hurtTime != 0 || target.isInvulnerableTo(damageSource)) return;
 
         target.damage(damageSource, damage.floatValue());
-        this.getStack().damage(1, (ServerWorld) world, null, item -> this.discard());
+        this.getStack().damage(1, world.getRandom(), null, this::discard);
     }
 
     @Override
