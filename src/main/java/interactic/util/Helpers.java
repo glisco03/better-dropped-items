@@ -39,8 +39,8 @@ public class Helpers {
     }
 
     public static boolean canPlayerPickUpItem(PlayerEntity player, ItemEntity item) {
-        if (!InteracticInit.getConfig().autoPickup() && player.isSneaking() && !item.getCommandTags().contains("interactic.ignore_auto_pickup_rule")) {
-            return true;
+        if (!InteracticInit.getConfig().autoPickup) {
+            return player.isSneaking() && item.getCommandTags().contains("interactic.ignore_auto_pickup_rule")
         }
 
         if (!InteracticInit.getConfig().itemFilterEnabled()) return true;
