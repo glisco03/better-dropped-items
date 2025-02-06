@@ -5,19 +5,15 @@ import interactic.InteracticInit;
 import interactic.util.Helpers;
 import interactic.util.InteracticNetworking;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,10 +39,6 @@ public class MinecraftClientMixin {
 
     @Shadow
     @Nullable
-    public ClientPlayerInteractionManager interactionManager;
-
-    @Shadow
-    @Nullable
     public ClientPlayerEntity player;
 
     @Shadow
@@ -58,7 +50,7 @@ public class MinecraftClientMixin {
         if (!InteracticInit.getConfig().rightClickPickup()) return;
         if (KeyBindingHelper.getBoundKeyOf(InteracticClientInit.PICKUP_ITEM) != InputUtil.UNKNOWN_KEY) return;
 
-        if (Helpers.raycastItem(cameraEntity, (float) this.player.getAttributeValue(EntityAttributes.PLAYER_BLOCK_INTERACTION_RANGE)) == null) return;
+        if (Helpers.raycastItem(cameraEntity, (float) this.player.getAttributeValue(EntityAttributes.BLOCK_INTERACTION_RANGE)) == null) return;
         InteracticNetworking.CHANNEL.clientHandle().send(new InteracticNetworking.Pickup());
         this.player.swingHand(Hand.MAIN_HAND);
         ci.cancel();

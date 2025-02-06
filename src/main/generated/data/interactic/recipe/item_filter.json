@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "c": "minecraft:copper_ingot",
+    "e": "minecraft:ender_eye"
+  },
+  "pattern": [
+    " c ",
+    "cec",
+    " c "
+  ],
+  "result": {
+    "count": 1,
+    "id": "interactic:item_filter"
+  }
+}

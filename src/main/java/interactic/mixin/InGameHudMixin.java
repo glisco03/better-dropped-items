@@ -18,7 +18,7 @@ import java.util.List;
 @Mixin(InGameHud.class)
 public class InGameHudMixin {
 
-    @Inject(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lnet/minecraft/util/Identifier;IIII)V", ordinal = 0))
+    @Inject(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V", ordinal = 0))
     private void renderItemTooltip(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         if (!InteracticInit.getConfig().renderItemTooltips()) return;
 

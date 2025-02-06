@@ -1,16 +1,17 @@
 package interactic;
 
+import interactic.data.EnabledProperty;
+import interactic.itemfilter.ItemFilterScreen;
 import interactic.util.InteracticNetworking;
-import io.wispforest.owo.config.ui.ConfigScreen;
+import io.wispforest.owo.config.ui.ConfigScreenProviders;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.render.item.property.bool.BooleanProperties;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
 
 public class InteracticClientInit implements ClientModInitializer {
 
@@ -19,15 +20,8 @@ public class InteracticClientInit implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        if (InteracticInit.getConfig().itemFilterEnabled()) {
-            ModelPredicateProviderRegistry.register(
-                    InteracticInit.getItemFilter(),
-                    Identifier.of("enabled"),
-                    (stack, world, entity, seed) -> stack.getOrDefault(ItemFilterItem.ENABLED, false) ? 1 : 0
-            );
-        }
-
         HandledScreens.register(InteracticInit.ITEM_FILTER_SCREEN_HANDLER, ItemFilterScreen::new);
+        BooleanProperties.ID_MAPPER.put(InteracticInit.id("enabled"), EnabledProperty.CODEC);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (PICKUP_ITEM.wasPressed()) {
@@ -36,7 +30,7 @@ public class InteracticClientInit implements ClientModInitializer {
             }
         });
 
-        ConfigScreen.registerProvider("interactic", InteracticConfigScreen::new);
+        ConfigScreenProviders.register("interactic", InteracticConfigScreen::new);
         InteracticNetworking.initClient();
     }
 }

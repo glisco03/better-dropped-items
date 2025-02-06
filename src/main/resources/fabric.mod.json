@@ -24,6 +24,9 @@
     ],
     "client": [
       "interactic.InteracticClientInit"
+    ],
+    "fabric-datagen": [
+      "interactic.data.InteracticDataGen"
     ]
   },
   "custom": {
@@ -34,9 +37,9 @@
     }
   },
   "depends": {
-    "fabricloader": ">=0.4.0",
-    "fabric": "*",
-    "minecraft": ">=1.20.3",
-    "owo": ">=0.11.3"
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": ">=1.21.4",
+    "owo": ">=0.12.0"
   }
 }

@@ -1,7 +1,7 @@
 package interactic.util;
 
 import interactic.InteracticInit;
-import interactic.ItemFilterItem;
+import interactic.itemfilter.ItemFilterItem;
 import interactic.mixin.PlayerInventoryAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
@@ -15,7 +15,6 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Helpers {
 

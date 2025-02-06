@@ -2,16 +2,14 @@ package interactic.mixin;
 
 import interactic.InteracticInit;
 import interactic.util.InteracticItemExtensions;
-import net.minecraft.block.ShapeContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.ItemEntityRenderer;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.client.render.entity.state.ItemEntityRenderState;
+import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.BlockItem;
@@ -25,29 +23,24 @@ import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntityRenderer.class)
-public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity> {
-
+public abstract class ItemEntityRendererMixin extends EntityRenderer {
+    
     private static final double TWO_PI = Math.PI * 2;
     private static final double HALF_PI = Math.PI * 0.5;
     private static final double THREE_HALF_PI = Math.PI * 1.5;
+    
+    @Unique
+    private ItemEntity entity;
 
     @Shadow
     @Final
     private Random random;
-
-    @Shadow
-    @Final
-    private ItemRenderer itemRenderer;
-
-    @Shadow
-    static int getRenderedAmount(int stackSize) {
-        return 0;
-    }
 
     private ItemEntityRendererMixin(EntityRendererFactory.Context dispatcher) {
         super(dispatcher);
@@ -57,9 +50,15 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
     private void onConstructor(EntityRendererFactory.Context context, CallbackInfo ci) {
         this.shadowRadius = 0;
     }
-
-    @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/entity/ItemEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", cancellable = true)
-    private void render(ItemEntity entity, float f, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo callback) {
+    
+    @Inject(at = @At("HEAD"), method = "Lnet/minecraft/client/render/entity/ItemEntityRenderer;updateRenderState(Lnet/minecraft/entity/ItemEntity;Lnet/minecraft/client/render/entity/state/ItemEntityRenderState;F)V")
+    private void updateRenderState(ItemEntity itemEntity, ItemEntityRenderState itemEntityRenderState, float f, CallbackInfo ci) {
+        this.entity = itemEntity;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/client/render/entity/state/ItemEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", cancellable = true)
+    private void render(ItemEntityRenderState itemEntityRenderState, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo callback) {
         if (!InteracticInit.getConfig().fancyItemRendering()) return;
 
         ItemStack itemStack = entity.getStack();
@@ -70,33 +69,37 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         this.random.setSeed(seed);
 
         matrices.push();
-
-        BakedModel bakedModel = this.itemRenderer.getModel(itemStack, entity.getWorld(), null, seed);
-        final int renderCount = getRenderedAmount(itemStack.getCount());
+        
+        ItemRenderState itemRenderState = itemEntityRenderState.itemRenderState;
+        final int renderCount = itemEntityRenderState.renderedAmount;
         InteracticItemExtensions rotator = (InteracticItemExtensions) entity;
 
         final var item = entity.getStack().getItem();
-        final boolean treatAsDepthModel = item instanceof BlockItem && bakedModel.hasDepth();
+        final boolean treatAsDepthModel = item instanceof BlockItem && itemRenderState.hasDepth();
+        // 1.21.4 flat model rotation wobble fix
+        final boolean airborneAsDepthModel = true;
 
-        final var transform = bakedModel.getTransformation().ground;
+        final var transform = itemRenderState.getTransformation();
 
-        final float scaleX = bakedModel.getTransformation().ground.scale.x;
-        final float scaleY = bakedModel.getTransformation().ground.scale.y;
-        final float scaleZ = bakedModel.getTransformation().ground.scale.z;
+        final float scaleX = itemRenderState.getTransformation().scale.x();
+        final float scaleY = itemRenderState.getTransformation().scale.y();
+        final float scaleZ = itemRenderState.getTransformation().scale.z();
 
         // Calculate the distance the model's center is from the item entity's center using the block outline shape
         final double blockHeight = !treatAsDepthModel ? 0 : ((BlockItem) item).getBlock().getDefaultState().getOutlineShape(entity.getWorld(), entity.getBlockPos()).getMax(Direction.Axis.Y);
         final boolean isFlatBlock = treatAsDepthModel && blockHeight <= 0.75;
-        final double distanceToCenter = (0.5 - blockHeight + blockHeight / 2) * 0.25;
+        final double baseDistanceToCenter = (0.5 - blockHeight + blockHeight / 2) * 0.25;
+        // 1.21.4 rotation wobble fix
+        double distanceToCenter = baseDistanceToCenter - (treatAsDepthModel ? 0.20f : 0.25f);
 
         // Translate so that everything happens in the middle of the item hitbox
         matrices.translate(0, 0.125f, 0);
 
         // Move the model, so it's center is at the base of the item entity
-        if (treatAsDepthModel) matrices.translate(0, distanceToCenter, 0);
+        if (airborneAsDepthModel) matrices.translate(0, distanceToCenter, 0);
 
         // Calculate ground distance from either the amount of items or block height
-        float groundDistance = treatAsDepthModel ? (float) distanceToCenter : (float) (0.125 - 0.0625 * scaleZ);
+        float groundDistance = treatAsDepthModel ? (float) baseDistanceToCenter : (float) (0.125 - 0.0625 * scaleZ);
         if (!treatAsDepthModel) groundDistance -= (renderCount - 1) * 0.05 * scaleZ;
         matrices.translate(0, -groundDistance, 0);
 
@@ -116,6 +119,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         if (angle >= TWO_PI) angle -= TWO_PI;
 
         // Clusterfuck our way back to either 0 or 180 degrees. There has to be a better way to do this
+        float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false);
         if (entity.isOnGround() && !(angle == 0 || angle == (float) Math.PI)) {
             if (angle > Math.PI) {
                 if (angle > THREE_HALF_PI) angle += tickDelta * 0.5;
@@ -134,7 +138,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         }
 
         // Move the matrix back so the rotation happens around the model's center
-        if (treatAsDepthModel) matrices.translate(0, -distanceToCenter, 0);
+        if (airborneAsDepthModel) matrices.translate(0, -distanceToCenter, 0);
 
         // Spin the item and store the value inside it should it hit the ground next tick
         matrices.multiply(RotationAxis.POSITIVE_X.rotation((float) (angle + (isFlatBlock ? 0 : HALF_PI))));
@@ -147,7 +151,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         }
 
         // Undo the translation from before
-        if (treatAsDepthModel) {
+        if (airborneAsDepthModel) {
             matrices.translate(0, distanceToCenter, 0);
         }
 
@@ -181,9 +185,10 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
             // Only apply the scale and rotation part of the model transform to avoid weird issues with alignment and rotation
             matrices.multiply(new Quaternionf().rotateXYZ(transform.rotation.x, transform.rotation.y, transform.rotation.z));
-            matrices.scale(scaleX, scaleY, scaleZ);
+            // 1.21.4 item shrinking fix
+//            matrices.scale(scaleX, scaleY, scaleZ);
 
-            this.itemRenderer.renderItem(itemStack, ModelTransformationMode.NONE, false, matrices, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV, bakedModel);
+            itemRenderState.render(matrices, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV);
 
             matrices.pop();
 
@@ -194,7 +199,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         }
 
         matrices.pop();
-        super.render(entity, f, tickDelta, matrices, vertexConsumerProvider, light);
+        super.render(itemEntityRenderState, matrices, vertexConsumerProvider, light);
         callback.cancel();
     }
 }
