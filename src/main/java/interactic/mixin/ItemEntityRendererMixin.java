@@ -88,9 +88,9 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer {
         // Calculate the distance the model's center is from the item entity's center using the block outline shape
         final double blockHeight = !treatAsDepthModel ? 0 : ((BlockItem) item).getBlock().getDefaultState().getOutlineShape(entity.getWorld(), entity.getBlockPos()).getMax(Direction.Axis.Y);
         final boolean isFlatBlock = treatAsDepthModel && blockHeight <= 0.75;
-        double distanceToCenter = (0.5 - blockHeight + blockHeight / 2) * 0.25;
+        final double baseDistanceToCenter = (0.5 - blockHeight + blockHeight / 2) * 0.25;
         // 1.21.4 rotation wobble fix
-        distanceToCenter -= treatAsDepthModel ? 0.20f : 0.25f;
+        double distanceToCenter = baseDistanceToCenter - (treatAsDepthModel ? 0.20f : 0.25f);
 
         // Translate so that everything happens in the middle of the item hitbox
         matrices.translate(0, 0.125f, 0);
@@ -99,7 +99,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer {
         if (airborneAsDepthModel) matrices.translate(0, distanceToCenter, 0);
 
         // Calculate ground distance from either the amount of items or block height
-        float groundDistance = treatAsDepthModel ? (float) distanceToCenter : (float) (0.125 - 0.0625 * scaleZ);
+        float groundDistance = treatAsDepthModel ? (float) baseDistanceToCenter : (float) (0.125 - 0.0625 * scaleZ);
         if (!treatAsDepthModel) groundDistance -= (renderCount - 1) * 0.05 * scaleZ;
         matrices.translate(0, -groundDistance, 0);
 
