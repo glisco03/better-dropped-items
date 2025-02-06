@@ -1,17 +1,16 @@
 package interactic;
 
-import interactic.mixin.ItemEntityAccessor;
-import interactic.util.Helpers;
+import interactic.itemfilter.ItemFilterItem;
+import interactic.itemfilter.ItemFilterScreenHandler;
 import interactic.util.InteracticConfig;
 import interactic.util.InteracticNetworking;
-import interactic.util.InteracticPlayerExtension;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
@@ -51,7 +50,9 @@ public class InteracticInit implements ModInitializer {
         if (FabricLoader.getInstance().isModLoaded("iris")) itemRotationSpeedMultiplier = 0.5f;
 
         if (CONFIG.itemFilterEnabled()) {
-            ITEM_FILTER = Registry.register(Registries.ITEM, id("item_filter"), new ItemFilterItem());
+            Identifier id = id("item_filter");
+            RegistryKey<Item> key = RegistryKey.of(RegistryKeys.ITEM, id);
+            ITEM_FILTER = Registry.register(Registries.ITEM, id, new ItemFilterItem(key));
         }
 
         InteracticNetworking.init();

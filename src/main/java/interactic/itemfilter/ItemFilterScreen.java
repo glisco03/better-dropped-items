@@ -1,12 +1,11 @@
-package interactic;
+package interactic.itemfilter;
 
+import interactic.InteracticInit;
 import interactic.util.InteracticNetworking;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TexturedButtonWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -53,10 +52,10 @@ public class ItemFilterScreen extends HandledScreen<ItemFilterScreenHandler> {
 
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
-        context.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
+        context.drawTexture(RenderLayer::getGuiTextured, TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight, 256, 256);
 
         if (!this.blockMode) {
-            context.drawTexture(TEXTURE, this.x + 7, this.y + 19, 0, 178, 162, 54);
+            context.drawTexture(RenderLayer::getGuiTextured, TEXTURE, this.x + 7, this.y + 19, 0, 178, 162, 54, 256, 256);
         }
     }
 }

@@ -14,7 +14,6 @@
     "ItemEntityAccessor",
     "ItemEntityMixin",
     "PlayerEntityMixin",
-    "PlayerInventoryAccessor",
-    "RecipeManagerMixin"
+    "PlayerInventoryAccessor"
   ]
 }

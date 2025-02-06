@@ -1,9 +1,9 @@
 package interactic.util;
 
 import interactic.InteracticInit;
-import interactic.ItemFilterItem;
-import interactic.ItemFilterScreen;
-import interactic.ItemFilterScreenHandler;
+import interactic.itemfilter.ItemFilterItem;
+import interactic.itemfilter.ItemFilterScreen;
+import interactic.itemfilter.ItemFilterScreenHandler;
 import interactic.mixin.ItemEntityAccessor;
 import io.wispforest.owo.network.OwoNetChannel;
 import net.fabricmc.api.EnvType;

@@ -1,6 +1,7 @@
-package interactic;
+package interactic.itemfilter;
 
 import com.mojang.serialization.Codec;
+import interactic.InteracticInit;
 import interactic.util.InteracticNetworking;
 import io.wispforest.endec.Endec;
 import io.wispforest.endec.impl.RecordEndec;
@@ -18,11 +19,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +46,7 @@ public class ItemFilterItem extends Item {
             InteracticInit.id("item_filter_enabled"),
             ComponentType.<Boolean>builder()
                     .codec(Codec.BOOL)
-                    .packetCodec(PacketCodecs.BOOL)
+                    .packetCodec(PacketCodecs.BOOLEAN)
                     .build()
     );
 
@@ -53,7 +55,7 @@ public class ItemFilterItem extends Item {
             InteracticInit.id("item_filter_block_mode"),
             ComponentType.<Boolean>builder()
                     .codec(Codec.BOOL)
-                    .packetCodec(PacketCodecs.BOOL)
+                    .packetCodec(PacketCodecs.BOOLEAN)
                     .build()
     );
 
@@ -66,20 +68,23 @@ public class ItemFilterItem extends Item {
                     .build()
     );
 
-    public ItemFilterItem() {
-        super(new Settings().maxCount(1)
+    public ItemFilterItem(RegistryKey<Item> key) {
+        super(new Settings()
+                .maxCount(1)
                 .component(ENABLED, true)
                 .component(BLOCK_MODE, true)
-                .component(FILTER_SLOTS, DefaultedList.ofSize(ItemFilterScreenHandler.SLOT_COUNT, ItemStack.EMPTY)));
+                .component(FILTER_SLOTS, DefaultedList.ofSize(ItemFilterScreenHandler.SLOT_COUNT, ItemStack.EMPTY))
+                .registryKey(key)
+        );
     }
 
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+    public ActionResult use(World world, PlayerEntity user, Hand hand) {
         final var playerStack = user.getStackInHand(hand);
         if (user.isSneaking()) {
             playerStack.apply(ENABLED, false, enabled -> !enabled);
         } else {
-            if (world.isClient) return TypedActionResult.success(playerStack);
+            if (world.isClient) return ActionResult.PASS;
             final var inv = new FilterInventory(playerStack);
             final var factory = new NamedScreenHandlerFactory() {
                 @Override
@@ -95,7 +100,7 @@ public class ItemFilterItem extends Item {
             user.openHandledScreen(factory);
             InteracticNetworking.CHANNEL.serverHandle(user).send(new SetFilterModePacket(inv.getFilterMode()));
         }
-        return TypedActionResult.success(playerStack);
+        return ActionResult.PASS;
     }
 
     public static List<Item> getItemsInFilter(ItemStack stack) {
